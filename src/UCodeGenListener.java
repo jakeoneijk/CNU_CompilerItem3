@@ -41,6 +41,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		int base = 0;
 		int offset = 0;
 		int number = 0;
+		int type = 0; // 0: int , 1: boolean
 		boolean isParam = false;
 		
 		public Variable(String name, int base, int offset, int number){
@@ -105,12 +106,12 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		int offset = symOffset[base];
 		int number = 1;
 
-		if(child == 3){
+		if(child == 3){ // variable
 			t.v.put(ctx.getChild(1).getText(), new Variable(ctx.getChild(1).getText(),base,offset,number));
 			temp+= whiteSpace(0)+"sym "+base+" "+offset+" "+number+"\n";
 			symOffset[base] = symOffset[base]+number;
 		}
-		else if(child == 6){
+		else if(child == 6){// array
 			number = Integer.parseInt(ctx.getChild(3).getText());
 			t.v.put(ctx.getChild(1).getText(), new Variable(ctx.getChild(1).getText(),base,offset,number));
 			temp+= whiteSpace(0)+"sym "+base+" "+offset+" "+number+"\n";
@@ -544,6 +545,11 @@ public class UCodeGenListener extends MiniGoBaseListener {
 				break;
 			}
 			t = t.parent;
+		}
+		if(var == null){
+				System.out.println("선언하지 않은 변수를 사용했습니다.");
+				System.exit(1);
+
 		}
 		return var;
 	}
