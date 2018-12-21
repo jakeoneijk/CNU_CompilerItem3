@@ -6,7 +6,8 @@ var_decl   : VAR IDENT type_spec
          | VAR IDENT ',' IDENT type_spec
          | VAR IDENT '[' LITERAL ']' type_spec ;
 type_spec  : INT 
-         | VOID 
+         | VOID
+         | BOOL
          | ; 
 fun_decl   : FUNC IDENT '(' params ')' type_spec compound_stmt  
          | FUNC IDENT '(' params ')' '(' type_spec ',' type_spec ')' compound_stmt;
@@ -55,6 +56,7 @@ VAR          : 'var'   ;
 FUNC      : 'func'  ;
 FMT          : 'fmt'      ;
 INT          : 'int'   ;
+BOOL         : 'bool'  ;
 FOR          : 'for'   ;
 IF       : 'if'    ;
 ELSE      : 'else'  ;
