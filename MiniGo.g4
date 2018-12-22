@@ -4,7 +4,8 @@ decl      : var_decl
          | fun_decl ;
 var_decl   : VAR IDENT type_spec
          | VAR IDENT ',' IDENT type_spec
-         | VAR IDENT '[' LITERAL ']' type_spec ;
+         | VAR IDENT '[' LITERAL ']' type_spec 
+         | VAR IDENT '<' type_spec '>' STACK;
 type_spec  : INT 
          | VOID
          | BOOL
@@ -34,10 +35,12 @@ return_stmt    : RETURN expr ',' expr
          | RETURN expr
          | RETURN ;
 local_decl : VAR IDENT type_spec
-             | VAR IDENT '[' LITERAL ']' type_spec;
+             | VAR IDENT '[' LITERAL ']' type_spec
+             | VAR IDENT '<' type_spec '>' STACK;
 expr      :  '(' expr ')'
          | IDENT '[' expr ']' 
          | IDENT '(' args ')' 
+         | stack_expr
          | FMT '.' IDENT '(' args ')' 
          | op=('-'|'+'|'--'|'++'|'!') expr 
          | left=expr op=('*'|'/'|'%') right=expr 
@@ -47,10 +50,11 @@ expr      :  '(' expr ')'
          | IDENT '=' expr
          | IDENT '[' expr ']' '=' expr
          |(LITERAL|IDENT);
-
 args      : expr (',' expr) * 
          | ;
-         
+stack_expr	:	IDENT method = ('.pop'|'.push'|'.peek'|'.size'|'.empty') '(' expr ')';
+ 
+STACK     : 'stack'	   ;
 VOID      : 'void'     ;
 VAR          : 'var'   ;
 FUNC      : 'func'  ;

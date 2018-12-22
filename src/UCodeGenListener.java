@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
@@ -67,7 +68,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			}
 		}
 		
-		public Variable(String name, int base, int offset, int number, boolean isParam,String type){
+		public Variable(String name, int base, int offset, int number, boolean isParam, String type){
 			this.base = base;
 			this.name = name;
 			this.offset = offset;
@@ -81,7 +82,42 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		}
 
 	}
-
+	
+	private class DataStack {
+		ArrayList<Integer> stack = new ArrayList<Integer>();
+		DataStack parent;
+		String name = "";
+		int type = 10;
+		int block = 0;
+		
+		public DataStack(String name, int type, int block){
+			this.name = name;
+			this.type = type;
+			this.block = block;
+		}
+		
+		public void addParent(DataStack d){
+			parent = d;
+		}
+		
+		public int size(){
+			return stack.size();
+		}
+		
+		public void push(int element){
+			stack.add(element);
+		}
+		
+		public int pop(){
+			return stack.remove(stack.size()-1);
+		}
+		
+		public int peek(){
+			return stack.get(stack.size()-1);
+		}
+	}
+	
+	Stack<DataStack> stackOfStack = new Stack<DataStack>();
 	Stack<Table> stack = new Stack<Table>();
 	Stack<String> loopStack = new Stack<String>();
 	ParseTreeProperty<Integer> exprType = new ParseTreeProperty<Integer>();
@@ -138,12 +174,45 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			symOffset[base] = symOffset[base]+number;
 		}
 		else if(child == 6){// array
-			number = Integer.parseInt(ctx.getChild(3).getText());
-			t.v.put(ctx.getChild(1).getText(), new Variable(ctx.getChild(1).getText(),base,offset,number,ctx.getChild(5).getText()));
-			temp+= whiteSpace(0)+"sym "+base+" "+offset+" "+number+"\n";
-			symOffset[base] = symOffset[base]+number;
+			if(ctx.getChild(2).getText().equals("[")){
+				number = Integer.parseInt(ctx.getChild(3).getText());
+				t.v.put(ctx.getChild(1).getText(), new Variable(ctx.getChild(1).getText(),base,offset,number,ctx.getChild(5).getText()));
+				temp+= whiteSpace(0)+"sym "+base+" "+offset+" "+number+"\n";
+				symOffset[base] = symOffset[base]+number;
+			}else if(ctx.getChild(2).getText().equals("<")){
+				int type = 10;
+				String name = "";
+				/*
+				 * type 결정
+				 */
+				if(ctx.getChild(3).getText().equals("int")){
+					type = 0;
+				} else if(ctx.getChild(3).getText().equals("bool")){
+					type = 1;
+				} else {
+					printCodeLine(ctx);
+					System.out.println("[error] 스택 타입에러 : void는 넣을 수 없습니다.");
+					System.exit(1);
+				}
+				
+				/*
+				 * IDENT를 name에 저장
+				 */
+				name = ctx.getChild(1).getText();
+				number = 10;
+				DataStack ds = new DataStack(name,type,base);
+				
+				if(stackOfStack.size()>0)
+					ds.parent = stackOfStack.peek();
+				
+				stackOfStack.add(ds);
+				
+				t.v.put(name, new Variable(name,base,offset,number,ctx.getChild(3).getText()));
+				temp += whiteSpace(0) + "sym " + base + " " + offset + " " + number + "\n";
+				symOffset[base] = symOffset[base]+number;
+			}
 		}
-		//System.out.print(temp);
+		
 		newTexts.put(ctx, temp);
 
 	}
@@ -174,12 +243,45 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			symOffset[base] = symOffset[base]+number;
 		} 
 		else if(child == 6){
-			number = Integer.parseInt(ctx.getChild(3).getText());
-			t.v.put(ctx.getChild(1).getText(), new Variable(ctx.getChild(1).getText(),base,offset,number,ctx.getChild(5).getText()));
-			temp+= whiteSpace(0)+"sym "+base+" "+offset+" "+number+"\n";
-			symOffset[base] = symOffset[base]+number;
+			if(ctx.getChild(2).getText().equals("[")){
+				number = Integer.parseInt(ctx.getChild(3).getText());
+				t.v.put(ctx.getChild(1).getText(), new Variable(ctx.getChild(1).getText(),base,offset,number,ctx.getChild(5).getText()));
+				temp+= whiteSpace(0)+"sym "+base+" "+offset+" "+number+"\n";
+				symOffset[base] = symOffset[base]+number;
+			} 
+			else if(ctx.getChild(2).getText().equals("<")){
+				int type = 10;
+				String name = "";
+				/*
+				 * type 결정
+				 */
+				if(ctx.getChild(3).getText().equals("int")){
+					type = 0;
+				} else if(ctx.getChild(3).getText().equals("bool")){
+					type = 1;
+				} else {
+					printCodeLine(ctx);
+					System.out.println("[error] 스택 타입에러 : void는 넣을 수 없습니다.");
+					System.exit(1);
+				}
+				
+				/*
+				 * IDENT를 name에 저장
+				 */
+				name = ctx.getChild(1).getText();
+				number = 10;
+				DataStack ds = new DataStack(name,type,base);
+				
+				if(stackOfStack.size()>0)
+					ds.parent = stackOfStack.peek();
+				
+				stackOfStack.add(ds);
+				
+				t.v.put(name, new Variable(name,base,offset,number,ctx.getChild(3).getText()));
+				temp += whiteSpace(0) + "sym " + base + " " + offset + " " + number + "\n";
+				symOffset[base] = symOffset[base]+number;
+			}
 		}
-		//System.out.print(temp);
 		newTexts.put(ctx, temp);
 	}
 
@@ -590,6 +692,47 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		newTexts.put(ctx, temp);
 	}
 
+	@Override public void enterStack_expr(MiniGoParser.Stack_exprContext ctx) { }
+	@Override public void exitStack_expr(MiniGoParser.Stack_exprContext ctx) {
+		String temp = "";
+		String method = ctx.getChild(1).getText();
+		String name = ctx.getChild(0).getText();
+		int returnType = exprType.get(ctx);
+		
+		DataStack s = searchStack(name, ctx);
+		Variable va = searchVariable(name, ctx);
+		/*
+		 * Type check
+		 */
+		singleOperationTypeCheck(ctx,s.type,returnType);
+		
+		/*
+		 * Methods implementation
+		 */
+		if(method.equals(".pop")){
+			int size = s.size();
+			int element = s.pop();
+			
+			temp += whiteSpace(0) + "ldc " + (size-1) + "\n";
+			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
+			temp += whiteSpace(0) + "add\n" + whiteSpace(0)+"ldi\n";
+			
+		}
+		else if(method.equals(".push")){
+			
+		}
+		else if(method.equals(".peek")){
+			
+		}
+		else if(method.equals(".size")){
+			
+		}
+		else if(method.equals(".empty")){
+			
+		}
+	}
+	
+	
 	@Override public void enterEveryRule( ParserRuleContext ctx) { }
 
 	@Override public void exitEveryRule( ParserRuleContext ctx) { }
@@ -609,7 +752,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		return result;
 	}
 
-	private Variable searchVariable(String name,ParserRuleContext ctx){
+	private Variable searchVariable(String name, ParserRuleContext ctx){
 		Table t = stack.peek();
 		Variable var = null;
 
@@ -648,6 +791,12 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		}
 	}
 
+	/*
+	 * expect = operand의 기대되는 타입
+	 * left = 왼쪽 타입
+	 * right = 오른쪽 타입
+	 * next = 결과타입 
+	 */
 	public void doubleOperationTypeCheck(ParserRuleContext ctx,int expect, int left, int right , int next){
 		if((expect != left)||(expect != right)){
 			this.printCodeLine(ctx);
@@ -661,5 +810,25 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		for(int i = 0 ; i < ctx.getChildCount(); i++){
 			System.out.print(ctx.getChild(i).getText()+" ");
 		}
+	}
+	
+	public DataStack searchStack(String name, MiniGoParser.Stack_exprContext ctx){
+		DataStack s = stackOfStack.peek();
+		DataStack result = null;
+		
+		while(s != null){
+			if(s.name.equals(name)){
+				result = s;
+				break;
+			}
+			s = s.parent;
+		}
+		if(result == null){
+				this.printCodeLine(ctx);
+				System.out.println("선언하지 않은 변수를 사용했습니다.");
+				System.exit(1);
+
+		}
+		return result;
 	}
 }

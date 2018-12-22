@@ -1,6 +1,7 @@
-// Generated from /Users/jakeoneim/Desktop/Programming/CNU/3_2/Compiler/item3/MiniGo.g4 by ANTLR 4.7.2
+// Generated from MiniGo.g4 by ANTLR 4.4
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -15,228 +16,240 @@ public class MiniGoBaseListener implements MiniGoListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterProgram(MiniGoParser.ProgramContext ctx) { }
+	@Override public void enterDecl(@NotNull MiniGoParser.DeclContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitProgram(MiniGoParser.ProgramContext ctx) { }
+	@Override public void exitDecl(@NotNull MiniGoParser.DeclContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDecl(MiniGoParser.DeclContext ctx) { }
+	@Override public void enterFun_decl(@NotNull MiniGoParser.Fun_declContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDecl(MiniGoParser.DeclContext ctx) { }
+	@Override public void exitFun_decl(@NotNull MiniGoParser.Fun_declContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterVar_decl(MiniGoParser.Var_declContext ctx) { }
+	@Override public void enterIf_stmt(@NotNull MiniGoParser.If_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitVar_decl(MiniGoParser.Var_declContext ctx) { }
+	@Override public void exitIf_stmt(@NotNull MiniGoParser.If_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterType_spec(MiniGoParser.Type_specContext ctx) { }
+	@Override public void enterProgram(@NotNull MiniGoParser.ProgramContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitType_spec(MiniGoParser.Type_specContext ctx) { }
+	@Override public void exitProgram(@NotNull MiniGoParser.ProgramContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFun_decl(MiniGoParser.Fun_declContext ctx) { }
+	@Override public void enterParams(@NotNull MiniGoParser.ParamsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFun_decl(MiniGoParser.Fun_declContext ctx) { }
+	@Override public void exitParams(@NotNull MiniGoParser.ParamsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterParams(MiniGoParser.ParamsContext ctx) { }
+	@Override public void enterExpr_stmt(@NotNull MiniGoParser.Expr_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitParams(MiniGoParser.ParamsContext ctx) { }
+	@Override public void exitExpr_stmt(@NotNull MiniGoParser.Expr_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterParam(MiniGoParser.ParamContext ctx) { }
+	@Override public void enterCompound_stmt(@NotNull MiniGoParser.Compound_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitParam(MiniGoParser.ParamContext ctx) { }
+	@Override public void exitCompound_stmt(@NotNull MiniGoParser.Compound_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStmt(MiniGoParser.StmtContext ctx) { }
+	@Override public void enterArgs(@NotNull MiniGoParser.ArgsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStmt(MiniGoParser.StmtContext ctx) { }
+	@Override public void exitArgs(@NotNull MiniGoParser.ArgsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpr_stmt(MiniGoParser.Expr_stmtContext ctx) { }
+	@Override public void enterStack_expr(@NotNull MiniGoParser.Stack_exprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpr_stmt(MiniGoParser.Expr_stmtContext ctx) { }
+	@Override public void exitStack_expr(@NotNull MiniGoParser.Stack_exprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAssign_stmt(MiniGoParser.Assign_stmtContext ctx) { }
+	@Override public void enterLocal_decl(@NotNull MiniGoParser.Local_declContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAssign_stmt(MiniGoParser.Assign_stmtContext ctx) { }
+	@Override public void exitLocal_decl(@NotNull MiniGoParser.Local_declContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCompound_stmt(MiniGoParser.Compound_stmtContext ctx) { }
+	@Override public void enterType_spec(@NotNull MiniGoParser.Type_specContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCompound_stmt(MiniGoParser.Compound_stmtContext ctx) { }
+	@Override public void exitType_spec(@NotNull MiniGoParser.Type_specContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIf_stmt(MiniGoParser.If_stmtContext ctx) { }
+	@Override public void enterParam(@NotNull MiniGoParser.ParamContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIf_stmt(MiniGoParser.If_stmtContext ctx) { }
+	@Override public void exitParam(@NotNull MiniGoParser.ParamContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFor_stmt(MiniGoParser.For_stmtContext ctx) { }
+	@Override public void enterFor_stmt(@NotNull MiniGoParser.For_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFor_stmt(MiniGoParser.For_stmtContext ctx) { }
+	@Override public void exitFor_stmt(@NotNull MiniGoParser.For_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterReturn_stmt(MiniGoParser.Return_stmtContext ctx) { }
+	@Override public void enterExpr(@NotNull MiniGoParser.ExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitReturn_stmt(MiniGoParser.Return_stmtContext ctx) { }
+	@Override public void exitExpr(@NotNull MiniGoParser.ExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLocal_decl(MiniGoParser.Local_declContext ctx) { }
+	@Override public void enterVar_decl(@NotNull MiniGoParser.Var_declContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLocal_decl(MiniGoParser.Local_declContext ctx) { }
+	@Override public void exitVar_decl(@NotNull MiniGoParser.Var_declContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpr(MiniGoParser.ExprContext ctx) { }
+	@Override public void enterStmt(@NotNull MiniGoParser.StmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpr(MiniGoParser.ExprContext ctx) { }
+	@Override public void exitStmt(@NotNull MiniGoParser.StmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArgs(MiniGoParser.ArgsContext ctx) { }
+	@Override public void enterAssign_stmt(@NotNull MiniGoParser.Assign_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitArgs(MiniGoParser.ArgsContext ctx) { }
+	@Override public void exitAssign_stmt(@NotNull MiniGoParser.Assign_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterReturn_stmt(@NotNull MiniGoParser.Return_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitReturn_stmt(@NotNull MiniGoParser.Return_stmtContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterEveryRule(ParserRuleContext ctx) { }
+	@Override public void enterEveryRule(@NotNull ParserRuleContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitEveryRule(ParserRuleContext ctx) { }
+	@Override public void exitEveryRule(@NotNull ParserRuleContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void visitTerminal(TerminalNode node) { }
+	@Override public void visitTerminal(@NotNull TerminalNode node) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void visitErrorNode(ErrorNode node) { }
+	@Override public void visitErrorNode(@NotNull ErrorNode node) { }
 }
