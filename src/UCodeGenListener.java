@@ -59,6 +59,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		}
 
 		public void setNumber(int number){
+			int interval = number-this.number;
 			this.number = number;
 
 			String[] ucodeName = this.uCodeDeclaration.split(" ");
@@ -68,6 +69,32 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			newTexts.put(ctxOfDecl,temp);
 
 			this.uCodeDeclaration = newName;
+
+			boolean nextofCurrent = false;
+
+			MiniGoParser.Compound_stmtContext parentOfCtx = (MiniGoParser.Compound_stmtContext)ctxOfDecl.getParent();
+			for(int i = 0; i < parentOfCtx.local_decl().size();i++){
+				if(nextofCurrent){
+					String temp2 = newTexts.get(parentOfCtx.local_decl(i)); // local Decl의 String
+					temp2 = temp2.replaceAll("           ","");
+					String[] ucodeName2 = temp2.split(" ");
+					ucodeName2[2] = (Integer.parseInt(ucodeName2[2])+interval)+"";
+					String newText = whiteSpace(0)+ ucodeName2[0]+" "+ucodeName2[1]+" "+ucodeName2[2]+" "+ucodeName2[3];
+					newTexts.put(parentOfCtx.local_decl(i),newText);
+
+					//변수 테이블의 변수 정보 도 수정
+					Variable va = searchVariable(parentOfCtx.local_decl(i).IDENT().getText(),parentOfCtx.local_decl(i));
+					va.offset = Integer.parseInt(ucodeName2[2]);
+
+
+				}
+
+				if(parentOfCtx.local_decl(i).equals(ctxOfDecl)){
+					nextofCurrent = true;
+				}
+
+			}
+
 		}
 
 		public Variable(String name, int base, int offset, int number){
@@ -728,7 +755,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 
 
 		}else if(ctx.getChild(1).getText().equals(".size")){
-			
+
 		}
 		newTexts.put(ctx, temp);
 	}
