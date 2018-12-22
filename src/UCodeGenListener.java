@@ -80,31 +80,6 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			}
 		}
 
-		public void typeCheck(String input){
-			if (this.type == 0) {
-				try {
-					int temp = Integer.parseInt(input);
-				} catch (NumberFormatException e) {
-					System.out.println("int 연산 타입 오류");
-					System.exit(1);
-				}
-			}else if(this.type == 1){
-				if((!input.equals("true"))&&(!input.equals("false"))){
-					System.out.println("bool 연산 타입 오류");
-					System.exit(1);
-				}
-			}
-		}
-
-		public void typeCheck(int exprType){
-			if(this.type != exprType){
-				if(this.type == 0){
-					System.out.println("int 연산 타입 오류");
-				}else if(this.type == 1){
-					System.out.println("bool 연산 타입 오류");
-				}
-			}
-		}
 	}
 
 	Stack<Table> stack = new Stack<Table>();
@@ -370,7 +345,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 					temp += "\n";
 					this.exprType.put(ctx,1);
 				}else{
-					Variable va = searchVariable(ctx.IDENT().getText());
+					Variable va = searchVariable(ctx.IDENT().getText(),ctx);
 					this.exprType.put(ctx, va.type());
 					if(va.number > 1){
 						temp += whiteSpace(0) + "lda "+va.base+" "+va.offset+"\n";
@@ -390,10 +365,11 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		}
 		else if(ctx.getChildCount() == 4 && ctx.getChild(3).getText().equals("]")){
 			if(this.exprType.get(ctx.getChild(2)) != 0){
+				this.printCodeLine(ctx);
 				System.out.println("배열의 인자는 int 타입이여야 합니다");
 				System.exit(1);
 			}
-			Variable va = searchVariable(ctx.IDENT().getText());
+			Variable va = searchVariable(ctx.IDENT().getText(),ctx);
 			this.exprType.put(ctx,va.type());
 			temp += newTexts.get(ctx.expr(0));
 			if(va.isParam){
@@ -426,28 +402,28 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			int exprType = this.exprType.get(ctx.getChild(1));
 			String operator = ctx.getChild(0).getText();
 			temp += newTexts.get(ctx.expr(0));
-			Variable va = searchVariable(ctx.getChild(1).getText());
+			Variable va = searchVariable(ctx.getChild(1).getText(),ctx);
 			switch(operator){
 			case "-":
 				temp += whiteSpace(0)+"neg\n";
-				singleOperationTypeCheck(this.exprType.get(ctx.getChild(1)),0);
+				singleOperationTypeCheck(ctx,this.exprType.get(ctx.getChild(1)),0);
 				this.exprType.put(ctx,0);
 				break;
 			case "--":
 				temp += whiteSpace(0)+"dec\n";
 				temp += whiteSpace(0)+"str "+va.base+" "+va.offset+"\n";
-				singleOperationTypeCheck(this.exprType.get(ctx.getChild(1)),0);
+				singleOperationTypeCheck(ctx,this.exprType.get(ctx.getChild(1)),0);
 				this.exprType.put(ctx,0);
 				break;
 			case "++":
 				temp += whiteSpace(0)+"inc\n";
 				temp += whiteSpace(0)+"str "+va.base+" "+va.offset+"\n";
-				singleOperationTypeCheck(this.exprType.get(ctx.getChild(1)),0);
+				singleOperationTypeCheck(ctx,this.exprType.get(ctx.getChild(1)),0);
 				this.exprType.put(ctx,0);
 				break;
 			case "!":
 				temp += whiteSpace(0)+"notop\n";
-				singleOperationTypeCheck(this.exprType.get(ctx.getChild(1)),1);
+				singleOperationTypeCheck(ctx,this.exprType.get(ctx.getChild(1)),1);
 				this.exprType.put(ctx,1);
 				break;
 			default:
@@ -521,13 +497,13 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			temp += whiteSpace(0)+"ldc "+ctx.getChild(2).getText()+"\n";
 		}
 		else if(ctx.getChildCount() == 3 && ctx.getChild(1).getText().equals("=")){
-			Variable va = searchVariable(ctx.getChild(0).getText());
+			Variable va = searchVariable(ctx.getChild(0).getText(),ctx);
 			doubleOperationTypeCheck(ctx,va.type(),va.type(),this.exprType.get(ctx.getChild(2)),10);
 			temp += newTexts.get(ctx.getChild(2));
 			temp += whiteSpace(0) + "str "+va.base+" "+va.offset+"\n";
 		}
 		else if(ctx.getChildCount() == 6 && ctx.getChild(4).getText().equals("=")){
-			Variable va = searchVariable(ctx.getChild(0).getText());
+			Variable va = searchVariable(ctx.getChild(0).getText(),ctx);
 			doubleOperationTypeCheck(ctx,va.type(),va.type(),this.exprType.get(ctx.getChild(5)),10);
 			temp += newTexts.get(ctx.expr(0));
 			if(va.isParam){
@@ -580,22 +556,22 @@ public class UCodeGenListener extends MiniGoBaseListener {
 	@Override public void exitAssign_stmt( MiniGoParser.Assign_stmtContext ctx) { 
 		String temp = newTexts.get(ctx);
 		if(ctx.getChildCount() == 4){
-			Variable va = searchVariable(ctx.getChild(0).getText());
+			Variable va = searchVariable(ctx.getChild(0).getText(),ctx);
 			temp += newTexts.get(ctx.getChild(3));
 			temp += whiteSpace(0) + "str "+va.base+" "+va.offset+"\n";
 		}
 		else if(ctx.getChildCount() == 5){
-			Variable va = searchVariable(ctx.getChild(1).getText());
+			Variable va = searchVariable(ctx.getChild(1).getText(),ctx);
 			temp += newTexts.get(ctx.getChild(4));
 			temp += whiteSpace(0) + "str "+va.base+" "+va.offset+"\n";
 
 		}
 		else if(ctx.getChildCount() == 9){
-			Variable va = searchVariable(ctx.getChild(1).getText());
+			Variable va = searchVariable(ctx.getChild(1).getText(),ctx);
 			temp += whiteSpace(0) + "ldc "+ctx.getChild(6).getText()+"\n";
 			temp += whiteSpace(0) + "str "+va.base+" "+va.offset+"\n";
 
-			va = searchVariable(ctx.getChild(3).getText());
+			va = searchVariable(ctx.getChild(3).getText(),ctx);
 			temp += whiteSpace(0) + "ldc "+ctx.getChild(8).getText()+"\n";
 			temp += whiteSpace(0) + "str "+va.base+" "+va.offset+"\n";
 		}
@@ -607,7 +583,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		int child = ctx.getChildCount();
 		String temp = "";
 		if(child == 2){
-			Variable va = searchVariable(ctx.getChild(1).getText());
+			Variable va = searchVariable(ctx.getChild(1).getText(),ctx);
 			temp += whiteSpace(0) + "lod "+va.base+" "+va.offset+"\n";
 			temp += whiteSpace(0) + "retv\n";
 		}
@@ -633,7 +609,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		return result;
 	}
 
-	private Variable searchVariable(String name){
+	private Variable searchVariable(String name,ParserRuleContext ctx){
 		Table t = stack.peek();
 		Variable var = null;
 
@@ -645,6 +621,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			t = t.parent;
 		}
 		if(var == null){
+				this.printCodeLine(ctx);
 				System.out.println("선언하지 않은 변수를 사용했습니다.");
 				System.exit(1);
 
@@ -663,8 +640,9 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		return false;
 	}
 
-	public void singleOperationTypeCheck(int exprType , int exprTypeExpected){
+	public void singleOperationTypeCheck(ParserRuleContext ctx,int exprType , int exprTypeExpected){
 		if(exprType != exprTypeExpected){
+			this.printCodeLine(ctx);
 			System.out.println("[error] 단일 연산자의 타입에러");
 			System.exit(1);
 		}
@@ -672,9 +650,16 @@ public class UCodeGenListener extends MiniGoBaseListener {
 
 	public void doubleOperationTypeCheck(ParserRuleContext ctx,int expect, int left, int right , int next){
 		if((expect != left)||(expect != right)){
+			this.printCodeLine(ctx);
 			System.out.println("[error] 연산 타입에러");
 			System.exit(1);
 		}
 		this.exprType.put(ctx,next);
+	}
+
+	public void printCodeLine(ParserRuleContext ctx){
+		for(int i = 0 ; i < ctx.getChildCount(); i++){
+			System.out.print(ctx.getChild(i).getText()+" ");
+		}
 	}
 }
