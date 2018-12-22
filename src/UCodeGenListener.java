@@ -504,7 +504,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			int exprType = this.exprType.get(ctx.getChild(1));
 			String operator = ctx.getChild(0).getText();
 			temp += newTexts.get(ctx.expr(0));
-			Variable va = searchVariable(ctx.getChild(1).getText(),ctx);
+			Variable va;
 			switch(operator){
 			case "-":
 				temp += whiteSpace(0)+"neg\n";
@@ -512,12 +512,14 @@ public class UCodeGenListener extends MiniGoBaseListener {
 				this.exprType.put(ctx,0);
 				break;
 			case "--":
+				va = searchVariable(ctx.getChild(1).getText(),ctx);
 				temp += whiteSpace(0)+"dec\n";
 				temp += whiteSpace(0)+"str "+va.base+" "+va.offset+"\n";
 				singleOperationTypeCheck(ctx,this.exprType.get(ctx.getChild(1)),0);
 				this.exprType.put(ctx,0);
 				break;
 			case "++":
+				va = searchVariable(ctx.getChild(1).getText(),ctx);
 				temp += whiteSpace(0)+"inc\n";
 				temp += whiteSpace(0)+"str "+va.base+" "+va.offset+"\n";
 				singleOperationTypeCheck(ctx,this.exprType.get(ctx.getChild(1)),0);
@@ -685,8 +687,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		int child = ctx.getChildCount();
 		String temp = "";
 		if(child == 2){
-			Variable va = searchVariable(ctx.getChild(1).getText(),ctx);
-			temp += whiteSpace(0) + "lod "+va.base+" "+va.offset+"\n";
+			temp += newTexts.get(ctx.getChild(1));
 			temp += whiteSpace(0) + "retv\n";
 		}
 		newTexts.put(ctx, temp);
@@ -711,24 +712,49 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		 */
 		if(method.equals(".pop")){
 			int size = s.size();
-			int element = s.pop();
 			
 			temp += whiteSpace(0) + "ldc " + (size-1) + "\n";
 			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
 			temp += whiteSpace(0) + "add\n" + whiteSpace(0)+"ldi\n";
 			
+			s.pop();
+			this.exprType.put(ctx, returnType);
 		}
 		else if(method.equals(".push")){
+			int size = s.size();
 			
+			temp += newTexts.get(ctx.getChild(3));
+			temp += whiteSpace(0) + "ldc " + size + "\n";
+			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
+			temp += whiteSpace(0) + "add\n" + whiteSpace(0)+"sti\n";
+			
+			this.exprType.put(ctx, 10);
 		}
 		else if(method.equals(".peek")){
+			int size = s.size();
 			
+			temp += whiteSpace(0) + "ldc " + (size-1) + "\n";
+			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
+			temp += whiteSpace(0) + "add\n" + whiteSpace(0)+"ldi\n";
+			
+			this.exprType.put(ctx, returnType);
 		}
 		else if(method.equals(".size")){
+			int size = s.size();
 			
+			temp += whiteSpace(0) + "ldc " + size + "\n";			
+			this.exprType.put(ctx, 0);
 		}
 		else if(method.equals(".empty")){
+			int size = s.size();
 			
+			if(size > 0){
+				temp += whiteSpace(0) + "ldc " + 1 + "\n";	
+			} else {
+				temp += whiteSpace(0) + "ldc " + 0 + "\n";	
+			}
+			
+			this.exprType.put(ctx, 1);
 		}
 	}
 	
