@@ -185,16 +185,6 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		for(int i = 0; i<ctx.getChildCount(); i++){
 			temp += newTexts.get(ctx.getChild(i));
 		}
-		/*
-		func dAL54 (index int, size int, a [] int) void{
-   			var temp int
-    		temp = index
-    		for(temp < size-1){
-				a[temp] = a[temp+1]
-				++temp
-    		}}
-		 */
-		temp +="dAL54      proc 4 2 2\n" + "           sym 2 1 1\n" + "           sym 2 2 1\n" + "           sym 2 3 1\n" + "           sym 2 4 1\n" + "           lod 2 1\n" + "           str 2 4\n" + "next0      nop\n" + "           lod 2 4\n" + "           lod 2 2\n" + "           ldc 1\n" + "           sub\n" + "           lt\n" + "           fjp next1\n" + "           lod 2 4\n" + "           lod 2 3\n" + "           add\n" + "           lod 2 4\n" + "           ldc 1\n" + "           add\n" + "           lod 2 3\n" + "           add\n" + "           ldi\n" + "           sti\n" + "           lod 2 4\n" + "           inc\n" + "           str 2 4\n" + "           ujp next0\n" + "next1      nop\n" + "           ret\n" + "           end\n";
 		temp += whiteSpace(0)+"bgn " + stack.peek().getVariableProc()+"\n"+whiteSpace(0)+"ldp\n"+whiteSpace(0)+"call main\n"+whiteSpace(0)+"end\n";
 		newTexts.put(ctx, temp);
 		System.out.println(temp);
@@ -211,7 +201,27 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		 stack.pop();
 	}
 
-	@Override public void enterLocal_decl( MiniGoParser.Local_declContext ctx) {
+	@Override
+	public void enterImport_decl(MiniGoParser.Import_declContext ctx) {
+		String temp = "";
+		String importName = ctx.getChild(1).getText();
+
+			/*
+		func dAL54 (index int, size int, a [] int) void{
+   			var temp int
+    		temp = index
+    		for(temp < size-1){
+				a[temp] = a[temp+1]
+				++temp
+    		}}
+		 */
+			temp +="dAL54      proc 4 2 2\n" + "           sym 2 1 1\n" + "           sym 2 2 1\n" + "           sym 2 3 1\n" + "           sym 2 4 1\n" + "           lod 2 1\n" + "           str 2 4\n" + "next0      nop\n" + "           lod 2 4\n" + "           lod 2 2\n" + "           ldc 1\n" + "           sub\n" + "           lt\n" + "           fjp next1\n" + "           lod 2 4\n" + "           lod 2 3\n" + "           add\n" + "           lod 2 4\n" + "           ldc 1\n" + "           add\n" + "           lod 2 3\n" + "           add\n" + "           ldi\n" + "           sti\n" + "           lod 2 4\n" + "           inc\n" + "           str 2 4\n" + "           ujp next0\n" + "next1      nop\n" + "           ret\n" + "           end\n";
+
+
+		newTexts.put(ctx, temp);
+	}
+
+	@Override public void enterLocal_decl(MiniGoParser.Local_declContext ctx) {
 		if(ctx.ARRAYLIST() != null){
 			String arrayListName = ctx.IDENT().getText();
 			this.arrayListInfo.put(arrayListName, new ArrayListInfo());

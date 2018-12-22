@@ -27,6 +27,18 @@ public class MiniGoBaseListener implements MiniGoListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterImport_decl(MiniGoParser.Import_declContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitImport_decl(MiniGoParser.Import_declContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterDecl(MiniGoParser.DeclContext ctx) { }
 	/**
 	 * {@inheritDoc}

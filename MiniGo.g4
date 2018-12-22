@@ -1,10 +1,11 @@
 grammar MiniGo;
-program       : decl+    ; 
+program   : import_decl* decl+    ;
+import_decl: IMPORT ARRAYLIST;
 decl      : var_decl
          | fun_decl ;
-var_decl   : VAR IDENT type_spec
+var_decl   : VAR IDENT type_spec ARRAYLIST
          | VAR IDENT ',' IDENT type_spec
-         | VAR IDENT type_spec ARRAYLIST
+         | VAR IDENT type_spec
          | VAR IDENT '[' LITERAL ']' type_spec ;
 type_spec  : INT 
          | VOID
@@ -34,8 +35,8 @@ for_stmt    : FOR expr compound_stmt;
 return_stmt    : RETURN expr ',' expr
          | RETURN expr
          | RETURN ;
-local_decl : VAR IDENT type_spec
-           | VAR IDENT type_spec ARRAYLIST
+local_decl : VAR IDENT type_spec ARRAYLIST
+           | VAR IDENT type_spec
            | VAR IDENT '[' LITERAL ']' type_spec;
 expr      :  '(' expr ')'
          | arrayList_expr
@@ -67,7 +68,7 @@ FUNC      : 'func'  ;
 FMT          : 'fmt'      ;
 INT          : 'int'   ;
 BOOL         : 'bool'  ;
-ARRAYLIST    : 'arrayList';
+ARRAYLIST    : 'ArrayList';
 FOR          : 'for'   ;
 IF       : 'if'    ;
 ELSE      : 'else'  ;
@@ -78,6 +79,7 @@ LE       : '<='    ;
 GE       : '>='    ;
 EQ       : '=='    ;
 NE       : '!='    ;
+IMPORT   : 'import';
 
 IDENT     : [a-zA-Z_] 
          ( [a-zA-Z_]
