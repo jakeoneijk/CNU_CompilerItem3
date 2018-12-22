@@ -6,7 +6,8 @@ var_decl   : VAR IDENT type_spec
          | VAR IDENT ',' IDENT type_spec
          | VAR IDENT '[' LITERAL ']' type_spec ;
 type_spec  : INT 
-         | VOID 
+         | VOID
+         | BOOL
          | ; 
 fun_decl   : FUNC IDENT '(' params ')' type_spec compound_stmt  
          | FUNC IDENT '(' params ')' '(' type_spec ',' type_spec ')' compound_stmt;
@@ -34,8 +35,7 @@ return_stmt    : RETURN expr ',' expr
          | RETURN ;
 local_decl : VAR IDENT type_spec
              | VAR IDENT '[' LITERAL ']' type_spec;
-expr      : (LITERAL|IDENT)
-         | '(' expr ')' 
+expr      :  '(' expr ')'
          | IDENT '[' expr ']' 
          | IDENT '(' args ')' 
          | FMT '.' IDENT '(' args ')' 
@@ -45,7 +45,9 @@ expr      : (LITERAL|IDENT)
          | left=expr op=(EQ|NE|LE|'<'|GE|'>'|AND|OR) right=expr
          | LITERAL ',' LITERAL
          | IDENT '=' expr
-         | IDENT '[' expr ']' '=' expr;
+         | IDENT '[' expr ']' '=' expr
+         |(LITERAL|IDENT);
+
 args      : expr (',' expr) * 
          | ;
          
@@ -54,6 +56,7 @@ VAR          : 'var'   ;
 FUNC      : 'func'  ;
 FMT          : 'fmt'      ;
 INT          : 'int'   ;
+BOOL         : 'bool'  ;
 FOR          : 'for'   ;
 IF       : 'if'    ;
 ELSE      : 'else'  ;
