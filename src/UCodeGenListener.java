@@ -215,8 +215,21 @@ public class UCodeGenListener extends MiniGoBaseListener {
 				++temp
     		}}
 		 */
-			temp +="dAL54      proc 4 2 2\n" + "           sym 2 1 1\n" + "           sym 2 2 1\n" + "           sym 2 3 1\n" + "           sym 2 4 1\n" + "           lod 2 1\n" + "           str 2 4\n" + "next0      nop\n" + "           lod 2 4\n" + "           lod 2 2\n" + "           ldc 1\n" + "           sub\n" + "           lt\n" + "           fjp next1\n" + "           lod 2 4\n" + "           lod 2 3\n" + "           add\n" + "           lod 2 4\n" + "           ldc 1\n" + "           add\n" + "           lod 2 3\n" + "           add\n" + "           ldi\n" + "           sti\n" + "           lod 2 4\n" + "           inc\n" + "           str 2 4\n" + "           ujp next0\n" + "next1      nop\n" + "           ret\n" + "           end\n";
+			temp +="dAL54      proc 4 2 2\n" + "           sym 2 1 1\n" + "           sym 2 2 1\n" + "           sym 2 3 1\n" + "           sym 2 4 1\n" + "           lod 2 1\n" + "           str 2 4\n" + "nex0       nop\n" + "           lod 2 4\n" + "           lod 2 2\n" + "           ldc 1\n" + "           sub\n" + "           lt\n" + "           fjp nex1\n" + "           lod 2 4\n" + "           lod 2 3\n" + "           add\n" + "           lod 2 4\n" + "           ldc 1\n" + "           add\n" + "           lod 2 3\n" + "           add\n" + "           ldi\n" + "           sti\n" + "           lod 2 4\n" + "           inc\n" + "           str 2 4\n" + "           ujp nex0\n" + "nex1       nop\n" + "           ret\n" + "           end\n";
+			/*
+			 func fAL54 (f int, size int, a [] int) int{
+   			var temp int
+    		temp = 0
+    		for(temp < size-1){
+				if (a[temp] == f){
+				return temp
+				}
+				++temp
+    		}
+    		return -1
+    		}*/
 
+			temp += "fAL54      proc 4 2 2\n" + "           sym 2 1 1\n" + "           sym 2 2 1\n" + "           sym 2 3 1\n" + "           sym 2 4 1\n" + "           ldc 0\n" + "           str 2 4\n" + "ne0        nop\n" + "           lod 2 4\n" + "           lod 2 2\n" + "           ldc 1\n" + "           sub\n" + "           lt\n" + "           fjp ne1\n" + "           lod 2 4\n" + "           lod 2 3\n" + "           add\n" + "           ldi\n" + "           lod 2 1\n" + "           eq\n" + "           fjp ne2\n" + "           lod 2 4\n" + "           retv\n" + "ne2        nop\n" + "           lod 2 4\n" + "           inc\n" + "           str 2 4\n" + "           ujp ne0\n" + "ne1        nop\n" + "           ldc 1\n" + "           neg\n" + "           retv\n" + "           end\n";
 
 		newTexts.put(ctx, temp);
 	}
@@ -539,7 +552,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			int exprType = this.exprType.get(ctx.getChild(1));
 			String operator = ctx.getChild(0).getText();
 			temp += newTexts.get(ctx.expr(0));
-			Variable va = searchVariable(ctx.getChild(1).getText(),ctx);
+			Variable va;
 			switch(operator){
 			case "-":
 				temp += whiteSpace(0)+"neg\n";
@@ -547,12 +560,14 @@ public class UCodeGenListener extends MiniGoBaseListener {
 				this.exprType.put(ctx,0);
 				break;
 			case "--":
+				va = searchVariable(ctx.getChild(1).getText(),ctx);
 				temp += whiteSpace(0)+"dec\n";
 				temp += whiteSpace(0)+"str "+va.base+" "+va.offset+"\n";
 				singleOperationTypeCheck(ctx,this.exprType.get(ctx.getChild(1)),0);
 				this.exprType.put(ctx,0);
 				break;
 			case "++":
+				va = searchVariable(ctx.getChild(1).getText(),ctx);
 				temp += whiteSpace(0)+"inc\n";
 				temp += whiteSpace(0)+"str "+va.base+" "+va.offset+"\n";
 				singleOperationTypeCheck(ctx,this.exprType.get(ctx.getChild(1)),0);
@@ -720,8 +735,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		int child = ctx.getChildCount();
 		String temp = "";
 		if(child == 2){
-			Variable va = searchVariable(ctx.getChild(1).getText(),ctx);
-			temp += whiteSpace(0) + "lod "+va.base+" "+va.offset+"\n";
+			temp += newTexts.get(ctx.getChild(1));
 			temp += whiteSpace(0) + "retv\n";
 		}
 		newTexts.put(ctx, temp);
@@ -779,15 +793,26 @@ public class UCodeGenListener extends MiniGoBaseListener {
 
 
 		}else if(ctx.getChild(1).getText().equals(".size")){
+			this.exprType.put(ctx,0);
 			temp += whiteSpace(0)+"ldc "+ this.arrayListInfo.get(ctx.IDENT().getText()).currentSize()+"\n";
 
 		}else if(ctx.getChild(1).getText().equals(".delete")){
 			Variable va = searchVariable(ctx.IDENT().getText(),ctx);
+			this.exprType.put(ctx,10);
 			temp += whiteSpace(0)+"ldp\n";
 			temp += newTexts.get(ctx.expr(0));
 			temp += whiteSpace(0)+"ldc "+(this.arrayListInfo.get(ctx.IDENT().getText()).currentSize()+1)+"\n";
 			temp += whiteSpace(0)+"lda "+va.base+" "+va.offset+"\n";
 			temp += whiteSpace(0)+"call dAL54\n";
+
+		}else if(ctx.getChild(1).getText().equals(".find")){
+			this.exprType.put(ctx,0);
+			Variable va = searchVariable(ctx.IDENT().getText(),ctx);
+			temp += whiteSpace(0)+"ldp\n";
+			temp += newTexts.get(ctx.expr(0));
+			temp += whiteSpace(0)+"ldc "+(this.arrayListInfo.get(ctx.IDENT().getText()).currentSize()+1)+"\n";
+			temp += whiteSpace(0)+"lda "+va.base+" "+va.offset+"\n";
+			temp += whiteSpace(0)+"call fAL54\n";
 
 		}
 		newTexts.put(ctx, temp);
