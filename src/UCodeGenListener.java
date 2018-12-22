@@ -755,6 +755,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 
 
 		}else if(ctx.getChild(1).getText().equals(".size")){
+			temp += whiteSpace(0)+"ldc "+ this.arrayListInfo.get(ctx.IDENT().getText()).currentSize()+"\n";
 
 		}
 		newTexts.put(ctx, temp);
