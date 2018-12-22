@@ -111,4 +111,10 @@ public interface MiniGoVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitArgs(MiniGoParser.ArgsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link MiniGoParser#arrayList_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayList_expr(MiniGoParser.ArrayList_exprContext ctx);
 }

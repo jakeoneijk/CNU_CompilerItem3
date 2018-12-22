@@ -176,4 +176,14 @@ public interface MiniGoListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArgs(MiniGoParser.ArgsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MiniGoParser#arrayList_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayList_expr(MiniGoParser.ArrayList_exprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MiniGoParser#arrayList_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayList_expr(MiniGoParser.ArrayList_exprContext ctx);
 }

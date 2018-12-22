@@ -4,6 +4,7 @@ decl      : var_decl
          | fun_decl ;
 var_decl   : VAR IDENT type_spec
          | VAR IDENT ',' IDENT type_spec
+         | VAR IDENT type_spec ARRAYLIST
          | VAR IDENT '[' LITERAL ']' type_spec ;
 type_spec  : INT 
          | VOID
@@ -34,8 +35,10 @@ return_stmt    : RETURN expr ',' expr
          | RETURN expr
          | RETURN ;
 local_decl : VAR IDENT type_spec
-             | VAR IDENT '[' LITERAL ']' type_spec;
+           | VAR IDENT type_spec ARRAYLIST
+           | VAR IDENT '[' LITERAL ']' type_spec;
 expr      :  '(' expr ')'
+         | arrayList_expr
          | IDENT '[' expr ']' 
          | IDENT '(' args ')' 
          | FMT '.' IDENT '(' args ')' 
@@ -50,6 +53,13 @@ expr      :  '(' expr ')'
 
 args      : expr (',' expr) * 
          | ;
+
+arrayList_expr: IDENT '.add''('expr')' //원소 추가
+              | IDENT '.find''('expr')'//찾을 원소 입력, 인덱스 반환
+              | IDENT '.size''('')'
+              | IDENT '.get''('expr')' // 찾을 Index
+              | IDENT '.get''('expr')' '=' expr
+              | IDENT '.delete''('expr')'; // 삭제할 Index expr에는 숫자만 허용
          
 VOID      : 'void'     ;
 VAR          : 'var'   ;
@@ -57,6 +67,7 @@ FUNC      : 'func'  ;
 FMT          : 'fmt'      ;
 INT          : 'int'   ;
 BOOL         : 'bool'  ;
+ARRAYLIST    : 'arrayList';
 FOR          : 'for'   ;
 IF       : 'if'    ;
 ELSE      : 'else'  ;

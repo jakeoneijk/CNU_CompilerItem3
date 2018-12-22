@@ -214,6 +214,18 @@ public class MiniGoBaseListener implements MiniGoListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArgs(MiniGoParser.ArgsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArrayList_expr(MiniGoParser.ArrayList_exprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArrayList_expr(MiniGoParser.ArrayList_exprContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
