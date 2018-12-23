@@ -441,6 +441,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		String temp = "";
 		if(ctx.getChildCount() == 1){
 			if(ctx.stack_expr() != null){
+				this.exprType.put(ctx, this.exprType.get(ctx.stack_expr()));
 				temp += newTexts.get(ctx.getChild(0));
 			}
 			else if(ctx.IDENT() != null){
@@ -701,14 +702,9 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		String temp = "";
 		String method = ctx.getChild(2).getText();
 		String name = ctx.getChild(0).getText();
-		//int returnType = exprType.get(ctx);
 		
 		DataStack s = searchStack(name, ctx);
 		Variable va = searchVariable(name, ctx);
-		/*
-		 * Type check
-		 */
-		//singleOperationTypeCheck(ctx,s.type,returnType);
 		
 		/*
 		 * Methods implementation
@@ -721,7 +717,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			temp += whiteSpace(0) + "add\n" + whiteSpace(0)+"ldi\n";
 			
 			s.pop();
-			//this.exprType.put(ctx, returnType);
+			this.exprType.put(ctx, s.type);
 		}
 		else if(method.equals("push")){
 			int size = s.size();
@@ -741,7 +737,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
 			temp += whiteSpace(0) + "add\n" + whiteSpace(0)+"ldi\n";
 			
-			//this.exprType.put(ctx, returnType);
+			this.exprType.put(ctx, s.type);
 		}
 		else if(method.equals("size")){
 			int size = s.size();

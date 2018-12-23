@@ -1,14 +1,16 @@
+var s1 <int> stack
+
 func main() void {
-	var a int
-var s <int> stack
-s.push(1)
-s.push(2)
-s.push(3)
-write(s.isEmpty)
-write(s.peek)
-write(s.pop)
-write(s.pop)
-write(s.pop)
+	var a bool
+var s2 <int> stack
+s1.push(1)
+s2.push(2)
+s2.push(3)
+
+a = s1.peek
+a = s2.pop
 write(a)
-write(s.isEmpty)
+write(s1.pop) 
+write(s2.pop)
+
 }
