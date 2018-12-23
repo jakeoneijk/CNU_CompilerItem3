@@ -1,5 +1,6 @@
 grammar MiniGo;
-program       : decl+    ; 
+program       : import_decl* decl+    ; 
+import_decl: IMPORT ARRAYLIST;
 decl      : var_decl
          | fun_decl ;
 var_decl   : VAR IDENT type_spec ARRAYLIST
