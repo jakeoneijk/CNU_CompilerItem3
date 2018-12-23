@@ -20,6 +20,7 @@ stmt      : expr_stmt
          | assign_stmt
          | if_stmt
          | for_stmt
+         | while_stmt
          | switch_stmt
          | return_stmt
          | three_stmt
@@ -35,6 +36,7 @@ if_stmt       : IF expr compound_stmt
          | IF expr compound_stmt ELSE compound_stmt ;
 three_stmt		: expr '?' (stmt) ':' stmt ;
 for_stmt    : FOR expr compound_stmt	;
+while_stmt : WHILE expr compound_stmt ;
 break_stmt	: BREAK ;
 continue_stmt	: CONTINUE ;
 switch_stmt    : SWITCH expr compound_stmt ;
@@ -67,6 +69,7 @@ FMT          : 'fmt'      ;
 INT          : 'int'   ;
 BOOL         : 'bool'  ;
 FOR          : 'for'   ;
+WHILE		: 'while'  ;
 SWITCH       : 'switch'    ;
 CASE       : 'case'    ;
 IF       : 'if'    ;

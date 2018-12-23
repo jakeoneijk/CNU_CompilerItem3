@@ -8,6 +8,16 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface MiniGoListener extends ParseTreeListener {
 	/**
+	 * Enter a parse tree produced by {@link MiniGoParser#while_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhile_stmt(@NotNull MiniGoParser.While_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MiniGoParser#while_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhile_stmt(@NotNull MiniGoParser.While_stmtContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link MiniGoParser#decl}.
 	 * @param ctx the parse tree
 	 */

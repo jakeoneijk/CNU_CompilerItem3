@@ -342,6 +342,33 @@ public class UCodeGenListener extends MiniGoBaseListener {
 	}
 	
 	// Jiseung's code
+	
+	@Override public void enterWhile_stmt( MiniGoParser.While_stmtContext ctx) { 
+		loopStack.add("next"+next);
+		// Jiseung code
+		continueFor = next;
+		next++;
+		exitFor = next; 
+		loopStack.add("next"+next);
+		next++;
+	}
+	@Override public void exitWhile_stmt( MiniGoParser.While_stmtContext ctx) { 
+		String temp = "";
+		String next1 = loopStack.pop();
+		String next2 = loopStack.pop();
+
+		temp += next2+whiteSpace(next2.length())+"nop\n";
+		temp += newTexts.get(ctx.getChild(1));
+		temp += whiteSpace(0)+"fjp "+next1+"\n";
+		temp += newTexts.get(ctx.getChild(2));
+		temp += whiteSpace(0)+"ujp "+next2+"\n";
+		temp += next1+whiteSpace(next1.length())+"nop\n";
+		// Jiseung code
+		exitFor = -1;
+		continueFor = -1;
+		newTexts.put(ctx, temp);
+	}
+	
 	@Override public void enterContinue_stmt(MiniGoParser.Continue_stmtContext ctx) {
 		if(continueFor == -1) {
 			// Continue 잘못 됐다는 코드 출력
