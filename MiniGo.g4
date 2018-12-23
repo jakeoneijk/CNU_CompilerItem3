@@ -2,7 +2,8 @@ grammar MiniGo;
 program       : decl+    ; 
 decl      : var_decl
          | fun_decl ;
-var_decl   : VAR IDENT type_spec
+var_decl   : VAR IDENT type_spec ARRAYLIST
+         | VAR IDENT type_spec
          | VAR IDENT ',' IDENT type_spec
          | VAR IDENT '[' LITERAL ']' type_spec 
          | VAR IDENT '<' type_spec '>' STACK
@@ -46,13 +47,15 @@ case_stmt: CASE LITERAL ':' stmt* ;
 return_stmt    : RETURN expr ',' expr
          | RETURN expr
          | RETURN ;
-local_decl : VAR IDENT type_spec
+local_decl : VAR IDENT type_spec ARRAYLIST
+             | VAR IDENT type_spec
              | VAR IDENT '[' LITERAL ']' type_spec
              | VAR IDENT '<' type_spec '>' STACK
              | VAR IDENT '<' type_spec '>' QUEUE;
 expr      :  '(' expr ')'
-		 | stack_expr
-		 | queue_expr
+         | arrayList_expr
+		     | stack_expr
+		     | queue_expr
          | IDENT '[' expr ']' 
          | IDENT '(' args ')' 
          | FMT '.' IDENT '(' args ')' 
@@ -66,7 +69,14 @@ expr      :  '(' expr ')'
          |(LITERAL|IDENT);
 args      : expr (',' expr) * 
          | ;
-         
+
+arrayList_expr: IDENT '.add''('expr')' //원소 추가
+              | IDENT '.find''('expr')'//찾을 원소 입력, 인덱스 반환
+              | IDENT '.size''('')'
+              | IDENT '.get''('expr')' // 찾을 Index
+              | IDENT '.get''('expr')' '=' expr
+              | IDENT '.delete''('expr')'; // 삭제할 Index
+              
 stack_expr	: IDENT '.' POPS
 			|IDENT '.' PEEKS
 			|IDENT '.' SIZES
@@ -77,7 +87,9 @@ queue_expr : IDENT '.' POLLD
 			|IDENT '.' SIZED
 			|IDENT '.' EMPTYD	
 			|IDENT '.' PUSHD '(' expr ')';
-			
+
+IMPORT   : 'import';			
+ARRAYLIST    : 'ArrayList';      
 POLLD : 'poll';
 PEEKD : 'peekd';
 SIZED : 'sized';
@@ -127,5 +139,5 @@ WS       : (' '
          | '\r'
          | '\n'        
          )+
-   -> channel(HIDDEN)  
+   -> channel(HIDDEN)
     ;

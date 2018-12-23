@@ -16,6 +16,12 @@ public interface MiniGoVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitProgram(MiniGoParser.ProgramContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link MiniGoParser#import_decl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitImport_decl(MiniGoParser.Import_declContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link MiniGoParser#decl}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -111,4 +117,10 @@ public interface MiniGoVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitArgs(MiniGoParser.ArgsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link MiniGoParser#arrayList_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayList_expr(MiniGoParser.ArrayList_exprContext ctx);
 }

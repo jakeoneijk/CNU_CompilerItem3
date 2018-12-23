@@ -46,48 +46,17 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		int number = 0;
 		int type = 10; // 0: int , 1: boolean , 10: unknown
 		boolean isParam = false;
-
-		public int type(){
-			return this.type;
-		}
-		public Variable(String name, int base, int offset, int number){
-			this.base = base;
-			this.name = name;
-			this.offset = offset;
-			this.number = number;
-		}
-
-		public Variable(String name, int base, int offset, int number,String type){
-			this.base = base;
-			this.name = name;
-			this.offset = offset;
-			this.number = number;
-			if(type.equals("bool")){
-				this.type = 1;
-			}else if(type.equals("int")){
-				this.type = 0;
-			}
-		}
-
-		public Variable(String name, int base, int offset, int number, boolean isParam, String type){
-			this.base = base;
-			this.name = name;
-			this.offset = offset;
-			this.number = number;
-			this.isParam = isParam;
-			if(type.equals("bool")){
-				this.type = 1;
-			}else if(type.equals("int")){
-				this.type = 0;
-			}
-		}
-
+    
 		String uCodeDeclaration="";
 		ParserRuleContext ctxOfDecl;
 
 		public void setuCodeDeclaration(ParserRuleContext ctx , String uCodeDeclaration) {
 			this.ctxOfDecl = ctx;
 			this.uCodeDeclaration = uCodeDeclaration;
+		}
+    
+		public int type(){
+			return this.type;
 		}
 
 		public void setNumber(int number){
@@ -124,7 +93,69 @@ public class UCodeGenListener extends MiniGoBaseListener {
 				if(parentOfCtx.local_decl(i).equals(ctxOfDecl)){
 					nextofCurrent = true;
 				}
+
 			}
+
+		}
+
+		public Variable(String name, int base, int offset, int number){
+			this.base = base;
+			this.name = name;
+			this.offset = offset;
+			this.number = number;
+		}
+
+		public Variable(String name, int base, int offset, int number,String type){
+			this.base = base;
+			this.name = name;
+			this.offset = offset;
+			this.number = number;
+			if(type.equals("bool")){
+				this.type = 1;
+			}else if(type.equals("int")){
+				this.type = 0;
+			}
+		}
+
+		public Variable(String name, int base, int offset, int number, boolean isParam, String type){
+			this.base = base;
+			this.name = name;
+			this.offset = offset;
+			this.number = number;
+			this.isParam = isParam;
+			if(type.equals("bool")){
+				this.type = 1;
+			}else if(type.equals("int")){
+				this.type = 0;
+			}
+		}
+	}
+
+	private class ArrayListInfo{
+		int maxSize;
+		int currentSize;
+		public ArrayListInfo(){
+			this.maxSize = 0;
+			this.currentSize = 0;
+		}
+
+		public int maxSize(){
+			return this.maxSize;
+		}
+
+		public int currentSize(){
+			return this.currentSize;
+		}
+
+		public void add(){
+			if(currentSize == maxSize){
+				maxSize++;
+			}
+			currentSize++;
+		}
+
+		public void delete(){//지우는 index받음
+			currentSize--;
 		}
 	}
 
@@ -207,6 +238,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 	Stack<String> loopStack = new Stack<String>();
 	ParseTreeProperty<Integer> exprType = new ParseTreeProperty<Integer>();
 	HashMap<String, ArrayList<Integer>> functionInfo = new HashMap<String, ArrayList<Integer>>();
+	HashMap<String,ArrayListInfo> arrayListInfo = new HashMap<>();
 
 	int[] symOffset = new int[100];
 	ParseTreeProperty<String> newTexts = new ParseTreeProperty<String>();
@@ -245,7 +277,46 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		stack.pop();
 	}
 
-	@Override public void enterLocal_decl( MiniGoParser.Local_declContext ctx) { }
+	@Override
+	public void enterImport_decl(MiniGoParser.Import_declContext ctx) {
+		String temp = "";
+		String importName = ctx.getChild(1).getText();
+
+			/*
+		func dAL54 (index int, size int, a [] int) void{
+   			var temp int
+    		temp = index
+    		for(temp < size-1){
+				a[temp] = a[temp+1]
+				++temp
+    		}}
+		 */
+			temp +="dAL54      proc 4 2 2\n" + "           sym 2 1 1\n" + "           sym 2 2 1\n" + "           sym 2 3 1\n" + "           sym 2 4 1\n" + "           lod 2 1\n" + "           str 2 4\n" + "nex0       nop\n" + "           lod 2 4\n" + "           lod 2 2\n" + "           ldc 1\n" + "           sub\n" + "           lt\n" + "           fjp nex1\n" + "           lod 2 4\n" + "           lod 2 3\n" + "           add\n" + "           lod 2 4\n" + "           ldc 1\n" + "           add\n" + "           lod 2 3\n" + "           add\n" + "           ldi\n" + "           sti\n" + "           lod 2 4\n" + "           inc\n" + "           str 2 4\n" + "           ujp nex0\n" + "nex1       nop\n" + "           ret\n" + "           end\n";
+			/*
+			 func fAL54 (f int, size int, a [] int) int{
+   			var temp int
+    		temp = 0
+    		for(temp < size-1){
+				if (a[temp] == f){
+				return temp
+				}
+				++temp
+    		}
+    		return -1
+    		}*/
+
+			temp += "fAL54      proc 4 2 2\n" + "           sym 2 1 1\n" + "           sym 2 2 1\n" + "           sym 2 3 1\n" + "           sym 2 4 1\n" + "           ldc 0\n" + "           str 2 4\n" + "ne0        nop\n" + "           lod 2 4\n" + "           lod 2 2\n" + "           ldc 1\n" + "           sub\n" + "           lt\n" + "           fjp ne1\n" + "           lod 2 4\n" + "           lod 2 3\n" + "           add\n" + "           ldi\n" + "           lod 2 1\n" + "           eq\n" + "           fjp ne2\n" + "           lod 2 4\n" + "           retv\n" + "ne2        nop\n" + "           lod 2 4\n" + "           inc\n" + "           str 2 4\n" + "           ujp ne0\n" + "ne1        nop\n" + "           ldc 1\n" + "           neg\n" + "           retv\n" + "           end\n";
+
+		newTexts.put(ctx, temp);
+	}
+
+	@Override public void enterLocal_decl(MiniGoParser.Local_declContext ctx) {
+		if(ctx.ARRAYLIST() != null){
+			String arrayListName = ctx.IDENT().getText();
+			this.arrayListInfo.put(arrayListName, new ArrayListInfo());
+		}
+
+	}
 	@Override public void exitLocal_decl( MiniGoParser.Local_declContext ctx) {
 		int child = ctx.getChildCount();
 
@@ -257,6 +328,15 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		int number = 1;
 		if(child == 3){ // variable
 			t.v.put(ctx.getChild(1).getText(), new Variable(ctx.getChild(1).getText(),base,offset,number,ctx.getChild(2).getText()));
+			temp+= whiteSpace(0)+"sym "+base+" "+offset+" "+number+"\n";
+			symOffset[base] = symOffset[base]+number;
+		}else if(child == 4){ // array List
+			number = this.arrayListInfo.get(ctx.IDENT().getText()).maxSize();
+
+			Variable newV = new Variable(ctx.getChild(1).getText(),base,offset,number,ctx.getChild(2).getText());
+			newV.setuCodeDeclaration(ctx,"sym "+base+" "+offset+" "+number);
+			t.v.put(ctx.getChild(1).getText(), newV);
+
 			temp+= whiteSpace(0)+"sym "+base+" "+offset+" "+number+"\n";
 			symOffset[base] = symOffset[base]+number;
 		}
@@ -341,7 +421,14 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		newTexts.put(ctx, temp);
 	}
 
-	@Override public void enterVar_decl( MiniGoParser.Var_declContext ctx) { }
+	@Override public void enterVar_decl( MiniGoParser.Var_declContext ctx) {
+		if(ctx.ARRAYLIST() != null){
+			String arrayListName = ctx.IDENT(0).getText();
+			this.arrayListInfo.put(arrayListName, new ArrayListInfo());
+		}
+
+
+	}
 	@Override public void exitVar_decl( MiniGoParser.Var_declContext ctx) { 
 		int child = ctx.getChildCount();
 
@@ -354,6 +441,15 @@ public class UCodeGenListener extends MiniGoBaseListener {
 
 		if(child == 3){
 			t.v.put(ctx.getChild(1).getText(), new Variable(ctx.getChild(1).getText(),base,offset,number,ctx.getChild(2).getText()));
+			temp+= whiteSpace(0)+"sym "+base+" "+offset+" "+number+"\n";
+			symOffset[base] = symOffset[base]+number;
+		}else if(child == 4){ // Array List 일때
+			number = this.arrayListInfo.get(ctx.IDENT(0).getText()).maxSize();
+
+			Variable newV = new Variable(ctx.getChild(1).getText(),base,offset,number,ctx.getChild(2).getText());
+			newV.setuCodeDeclaration(ctx,"sym "+base+" "+offset+" "+number);
+			t.v.put(ctx.getChild(1).getText(), newV);
+
 			temp+= whiteSpace(0)+"sym "+base+" "+offset+" "+number+"\n";
 			symOffset[base] = symOffset[base]+number;
 		}
@@ -455,6 +551,10 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		Table t = new Table();
 		t.parent = stack.peek();
 		stack.add(t);
+		if(ctx.IDENT().getText().equals("dAL54")){
+			System.out.println("dAL54 내부 라이브러리 함수 이름이므로 사용할 수 없습니다");
+			System.exit(1);
+		}
 	}
 	@Override public void exitFun_decl( MiniGoParser.Fun_declContext ctx) {
 		String name = ctx.getChild(1).getText();
@@ -784,9 +884,12 @@ public class UCodeGenListener extends MiniGoBaseListener {
 					}
 				}
 
-			}else {
+			}else if(ctx.arrayList_expr() == null){
 				this.exprType.put(ctx,0);
 				temp += whiteSpace(0) + "ldc "+ctx.getChild(0).getText()+"\n";
+			}else{
+				this.exprType.put(ctx,this.exprType.get(ctx.getChild(0)));
+				temp += newTexts.get(ctx.getChild(0));
 			}
 		} 
 		else if(ctx.getChild(0).getText().equals("(")){
@@ -1020,7 +1123,83 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		}
 		newTexts.put(ctx, temp);
 	}
+  
+	@Override
+	public void enterArrayList_expr(MiniGoParser.ArrayList_exprContext ctx) {
+		if(ctx.getChild(1).getText().equals(".add")){
+			Variable va = searchVariable(ctx.IDENT().getText(),ctx);
+			this.arrayListInfo.get(ctx.getChild(0).getText()).add();
+			int newMaxSize = this.arrayListInfo.get(ctx.getChild(0).getText()).maxSize();
+			va.setNumber(newMaxSize);
+		}else if(ctx.getChild(1).getText().equals(".delete")){
+				this.arrayListInfo.get(ctx.getChild(0).getText()).delete();
+		}
+		super.enterArrayList_expr(ctx);
+	}
 
+	@Override
+	public void exitArrayList_expr(MiniGoParser.ArrayList_exprContext ctx) {
+		String temp= "";
+		if(ctx.getChild(1).getText().equals(".get")){
+
+			Variable va = searchVariable(ctx.IDENT().getText(),ctx);
+			this.exprType.put(ctx,va.type());
+			temp += newTexts.get(ctx.expr(0));
+			if(va.isParam){
+				temp += whiteSpace(0)+"lod "+va.base+" "+va.offset+"\n";
+			}else {
+				temp += whiteSpace(0)+"lda "+va.base+" "+va.offset+"\n";
+			}
+			temp += whiteSpace(0)+"add\n";
+
+			if(ctx.getChildCount() < 6){
+				temp += whiteSpace(0)+"ldi\n";
+			}else{
+				temp += newTexts.get(ctx.expr(1));
+				temp += whiteSpace(0)+"sti\n";
+			}
+
+
+		}else if(ctx.getChild(1).getText().equals(".add")){
+
+			Variable va = searchVariable(ctx.IDENT().getText(),ctx);
+			this.exprType.put(ctx,10);
+			temp += whiteSpace(0)+"ldc "+(this.arrayListInfo.get(ctx.IDENT().getText()).currentSize()-1)+"\n";
+			if(va.isParam){
+				temp += whiteSpace(0)+"lod "+va.base+" "+va.offset+"\n";
+			}else {
+				temp += whiteSpace(0)+"lda "+va.base+" "+va.offset+"\n";
+			}
+			temp += whiteSpace(0)+"add\n";
+			temp += newTexts.get(ctx.expr(0));
+			temp += whiteSpace(0)+"sti\n";
+
+
+		}else if(ctx.getChild(1).getText().equals(".size")){
+			this.exprType.put(ctx,0);
+			temp += whiteSpace(0)+"ldc "+ this.arrayListInfo.get(ctx.IDENT().getText()).currentSize()+"\n";
+
+		}else if(ctx.getChild(1).getText().equals(".delete")){
+			Variable va = searchVariable(ctx.IDENT().getText(),ctx);
+			this.exprType.put(ctx,10);
+			temp += whiteSpace(0)+"ldp\n";
+			temp += newTexts.get(ctx.expr(0));
+			temp += whiteSpace(0)+"ldc "+(this.arrayListInfo.get(ctx.IDENT().getText()).currentSize()+1)+"\n";
+			temp += whiteSpace(0)+"lda "+va.base+" "+va.offset+"\n";
+			temp += whiteSpace(0)+"call dAL54\n";
+
+		}else if(ctx.getChild(1).getText().equals(".find")){
+			this.exprType.put(ctx,0);
+			Variable va = searchVariable(ctx.IDENT().getText(),ctx);
+			temp += whiteSpace(0)+"ldp\n";
+			temp += newTexts.get(ctx.expr(0));
+			temp += whiteSpace(0)+"ldc "+(this.arrayListInfo.get(ctx.IDENT().getText()).currentSize()+1)+"\n";
+			temp += whiteSpace(0)+"lda "+va.base+" "+va.offset+"\n";
+			temp += whiteSpace(0)+"call fAL54\n";
+  	}
+		newTexts.put(ctx, temp);
+	}
+  
 	@Override public void enterStack_expr(MiniGoParser.Stack_exprContext ctx) { }
 	@Override public void exitStack_expr(MiniGoParser.Stack_exprContext ctx) {
 		String temp = "";
@@ -1169,12 +1348,11 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			}
 
 			this.exprType.put(ctx, 1);
-		}
+      }
 		newTexts.put(ctx, temp);
 	}
 
-
-	@Override public void enterEveryRule( ParserRuleContext ctx) { }
+	@Override public void enterEveryRule(ParserRuleContext ctx) { }
 
 	@Override public void exitEveryRule( ParserRuleContext ctx) { }
 

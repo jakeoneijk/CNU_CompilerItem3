@@ -23,6 +23,13 @@ public class MiniGoBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitImport_decl(MiniGoParser.Import_declContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitDecl(MiniGoParser.DeclContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
@@ -129,4 +136,11 @@ public class MiniGoBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitArgs(MiniGoParser.ArgsContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitArrayList_expr(MiniGoParser.ArrayList_exprContext ctx) { return visitChildren(ctx); }
 }
