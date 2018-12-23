@@ -5,7 +5,8 @@ decl      : var_decl
 var_decl   : VAR IDENT type_spec
          | VAR IDENT ',' IDENT type_spec
          | VAR IDENT '[' LITERAL ']' type_spec 
-         | VAR IDENT '<' type_spec '>' STACK;
+         | VAR IDENT '<' type_spec '>' STACK
+         | VAR IDENT '<' type_spec '>' QUEUE;
 type_spec  : INT 
          | VOID
          | BOOL
@@ -36,9 +37,11 @@ return_stmt    : RETURN expr ',' expr
          | RETURN ;
 local_decl : VAR IDENT type_spec
              | VAR IDENT '[' LITERAL ']' type_spec
-             | VAR IDENT '<' type_spec '>' STACK;
+             | VAR IDENT '<' type_spec '>' STACK
+             | VAR IDENT '<' type_spec '>' QUEUE;
 expr      :  '(' expr ')'
 		 | stack_expr
+		 | queue_expr
          | IDENT '[' expr ']' 
          | IDENT '(' args ')' 
          | FMT '.' IDENT '(' args ')' 
@@ -55,14 +58,26 @@ args      : expr (',' expr) *
 stack_expr	: IDENT '.' POPS
 			|IDENT '.' PEEKS
 			|IDENT '.' SIZES
-			|IDENT '.' ISEMPTYS	
+			|IDENT '.' EMPTYS	
 			|IDENT '.' PUSHS '(' expr ')';
+queue_expr : IDENT '.' POLLD
+			|IDENT '.' PEEKD
+			|IDENT '.' SIZED
+			|IDENT '.' EMPTYD	
+			|IDENT '.' PUSHD '(' expr ')';
+			
+POLLD : 'poll';
+PEEKD : 'peekd';
+SIZED : 'sized';
+EMPTYD : 'emptyd';
+PUSHD : 'pushd';
 PUSHS	: 'pushs';
-POPS		: 'pops';
+POPS		: 'pop';
 PEEKS 	: 'peeks';
 SIZES	: 'sizes';
-ISEMPTYS : 'isEmptys';
-STACK     : 'stack'	   ;
+EMPTYS : 'emptys';
+QUEUE	  : 'Queue';
+STACK     : 'Stack'	   ;
 VOID      : 'void'     ;
 VAR          : 'var'   ;
 FUNC      : 'func'  ;

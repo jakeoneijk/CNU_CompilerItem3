@@ -40,6 +40,18 @@ public class MiniGoBaseListener implements MiniGoListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterQueue_expr(@NotNull MiniGoParser.Queue_exprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitQueue_expr(@NotNull MiniGoParser.Queue_exprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterIf_stmt(@NotNull MiniGoParser.If_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}

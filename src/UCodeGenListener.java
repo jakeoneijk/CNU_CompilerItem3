@@ -46,7 +46,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		int number = 0;
 		int type = 10; // 0: int , 1: boolean , 10: unknown
 		boolean isParam = false;
-		
+
 		public int type(){
 			return this.type;
 		}
@@ -68,7 +68,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 				this.type = 0;
 			}
 		}
-		
+
 		public Variable(String name, int base, int offset, int number, boolean isParam, String type){
 			this.base = base;
 			this.name = name;
@@ -81,7 +81,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 				this.type = 0;
 			}
 		}
-		
+
 		String uCodeDeclaration="";
 		ParserRuleContext ctxOfDecl;
 
@@ -89,7 +89,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			this.ctxOfDecl = ctx;
 			this.uCodeDeclaration = uCodeDeclaration;
 		}
-		
+
 		public void setNumber(int number){
 			int interval = number-this.number;
 			this.number = number;
@@ -127,7 +127,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			}
 		}
 	}
-	
+
 	private class DataStack {
 		ArrayList<Integer> stack = new ArrayList<Integer>();
 		DataStack parent;
@@ -135,31 +135,73 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		int type = 10;
 		int block = 0;
 		int maxSize = 0;
-		
+
 		public DataStack(String name, int type, int block){
 			this.name = name;
 			this.type = type;
 			this.block = block;
 			maxSize = 10;
 		}
-		
+
 		public int size(){
 			return stack.size();
 		}
-		
+
 		public void push(int element){
 			stack.add(element);
 		}
-		
+
 		public int pop(){
+			if(stack.size() == 0){
+				System.out.println("[Error] : Stack에 push된 원소가 없습니다.");
+				System.exit(1);
+			}
 			return stack.remove(stack.size()-1);
 		}
-		
+
 		public int peek(){
 			return stack.get(stack.size()-1);
 		}
 	}
-	
+
+	private class DataQueue {
+		ArrayList<Integer> queue = new ArrayList<Integer>();
+		DataQueue parent;
+		String name = "";
+		int type = 10;
+		int block = 0;
+		int iter = -1;
+		int maxSize = 0;
+
+		public DataQueue(String name, int type, int block){
+			this.name = name;
+			this.type = type;
+			this.block = block;
+			maxSize = 10;
+		}
+
+		public int size(){
+			return queue.size();
+		}
+
+		public void push(int element){
+			queue.add(element);
+		}
+
+		public int pop(){
+			if(queue.size() == 0){
+				System.out.println("[Error] : Queue에 push된 원소가 없습니다.");
+				System.exit(1);
+			}
+			return queue.remove(queue.size()-1);
+		}
+
+		public int peek(){
+			return queue.get(queue.size()-1);
+		}
+	}
+
+	Stack<DataQueue> stackOfQueue = new Stack<DataQueue>();
 	Stack<DataStack> stackOfStack = new Stack<DataStack>();
 	Stack<Table> stack = new Stack<Table>();
 	Stack<String> loopStack = new Stack<String>();
@@ -188,17 +230,17 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		temp += whiteSpace(0)+"bgn " + stack.peek().getVariableProc()+"\n"+whiteSpace(0)+"ldp\n"+whiteSpace(0)+"call main\n"+whiteSpace(0)+"end\n";
 		newTexts.put(ctx, temp);
 		System.out.println(temp);
-		 try {
-		      BufferedWriter out = new BufferedWriter(new FileWriter("result.txt"));
-		  
-		      out.write(temp);
-		  
-		      out.close();
-		    } catch (IOException e) {
-		        System.err.println(e); 
-		        System.exit(1);
-		    }
-		 stack.pop();
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter("result.txt"));
+
+			out.write(temp);
+
+			out.close();
+		} catch (IOException e) {
+			System.err.println(e); 
+			System.exit(1);
+		}
+		stack.pop();
 	}
 
 	@Override public void enterLocal_decl( MiniGoParser.Local_declContext ctx) { }
@@ -222,7 +264,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 				t.v.put(ctx.getChild(1).getText(), new Variable(ctx.getChild(1).getText(),base,offset,number,ctx.getChild(5).getText()));
 				temp+= whiteSpace(0)+"sym "+base+" "+offset+" "+number+"\n";
 				symOffset[base] = symOffset[base]+number;
-			}else if(ctx.getChild(2).getText().equals("<")){
+			}else if(ctx.getChild(2).getText().equals("<") && ctx.getChild(5).getText().equals("Stack")){
 				int type = 10;
 				String name = "";
 				/*
@@ -237,30 +279,64 @@ public class UCodeGenListener extends MiniGoBaseListener {
 					System.out.println("[error] 스택 타입에러 : void는 넣을 수 없습니다.");
 					System.exit(1);
 				}
-				
+
 				/*
 				 * IDENT를 name에 저장
 				 */
 				name = ctx.getChild(1).getText();
 				number = 10;
 				DataStack ds = new DataStack(name,type,base);
-				
+
 				if(stackOfStack.size()>0)
 					ds.parent = stackOfStack.peek();
-				
+
 				stackOfStack.add(ds);
-				
+
 				Variable newV = new Variable(name,base,offset,number,ctx.getChild(3).getText());
 				newV.setuCodeDeclaration(ctx,"sym "+base+" "+offset+" "+number);
 				t.v.put(name, newV);
-				
+
+				temp += whiteSpace(0) + "sym " + base + " " + offset + " " + number + "\n";
+				symOffset[base] = symOffset[base]+number;
+			}
+			else if(ctx.getChild(2).getText().equals("<") && ctx.getChild(5).getText().equals("Queue")){
+				int type = 10;
+				String name = "";
+				/*
+				 * type 결정
+				 */
+				if(ctx.getChild(3).getText().equals("int")){
+					type = 0;
+				} else if(ctx.getChild(3).getText().equals("bool")){
+					type = 1;
+				} else {
+					printCodeLine(ctx);
+					System.out.println("[error] 큐 타입에러 : void는 넣을 수 없습니다.");
+					System.exit(1);
+				}
+
+				/*
+				 * IDENT를 name에 저장
+				 */
+				name = ctx.getChild(1).getText();
+				number = 10;
+				DataQueue dq = new DataQueue(name,type,base);
+
+				if(stackOfQueue.size()>0)
+					dq.parent = stackOfQueue.peek();
+
+				stackOfQueue.add(dq);
+
+				Variable newV = new Variable(name,base,offset,number,ctx.getChild(3).getText());
+				newV.setuCodeDeclaration(ctx,"sym "+base+" "+offset+" "+number);
+				t.v.put(name, newV);
+
 				temp += whiteSpace(0) + "sym " + base + " " + offset + " " + number + "\n";
 				symOffset[base] = symOffset[base]+number;
 			}
 		}
-		
-		newTexts.put(ctx, temp);
 
+		newTexts.put(ctx, temp);
 	}
 
 	@Override public void enterVar_decl( MiniGoParser.Var_declContext ctx) { }
@@ -295,7 +371,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 				temp+= whiteSpace(0)+"sym "+base+" "+offset+" "+number+"\n";
 				symOffset[base] = symOffset[base]+number;
 			} 
-			else if(ctx.getChild(2).getText().equals("<")){
+			else if(ctx.getChild(2).getText().equals("<") && ctx.getChild(5).getText().equals("Stack")){
 				int type = 10;
 				String name = "";
 				/*
@@ -310,19 +386,53 @@ public class UCodeGenListener extends MiniGoBaseListener {
 					System.out.println("[error] 스택 타입에러 : void는 넣을 수 없습니다.");
 					System.exit(1);
 				}
-				
+
 				/*
 				 * IDENT를 name에 저장
 				 */
 				name = ctx.getChild(1).getText();
 				number = 10;
 				DataStack ds = new DataStack(name,type,base);
-				
+
 				if(stackOfStack.size()>0)
 					ds.parent = stackOfStack.peek();
-				
+
 				stackOfStack.add(ds);
-				
+
+				Variable newV = new Variable(name,base,offset,number,ctx.getChild(3).getText());
+				newV.setuCodeDeclaration(ctx,"sym "+base+" "+offset+" "+number);
+				t.v.put(name, newV);
+				temp += whiteSpace(0) + "sym " + base + " " + offset + " " + number + "\n";
+				symOffset[base] = symOffset[base]+number;
+			}
+			else if(ctx.getChild(2).getText().equals("<") && ctx.getChild(5).getText().equals("Queue")){
+				int type = 10;
+				String name = "";
+				/*
+				 * type 결정
+				 */
+				if(ctx.getChild(3).getText().equals("int")){
+					type = 0;
+				} else if(ctx.getChild(3).getText().equals("bool")){
+					type = 1;
+				} else {
+					printCodeLine(ctx);
+					System.out.println("[error] 큐 타입에러 : void는 넣을 수 없습니다.");
+					System.exit(1);
+				}
+
+				/*
+				 * IDENT를 name에 저장
+				 */
+				name = ctx.getChild(1).getText();
+				number = 10;
+				DataQueue dq = new DataQueue(name,type,base);
+
+				if(stackOfQueue.size()>0)
+					dq.parent = stackOfQueue.peek();
+
+				stackOfQueue.add(dq);
+
 				Variable newV = new Variable(name,base,offset,number,ctx.getChild(3).getText());
 				newV.setuCodeDeclaration(ctx,"sym "+base+" "+offset+" "+number);
 				t.v.put(name, newV);
@@ -330,6 +440,8 @@ public class UCodeGenListener extends MiniGoBaseListener {
 				symOffset[base] = symOffset[base]+number;
 			}
 		}
+		
+
 		newTexts.put(ctx, temp);
 	}
 
@@ -357,9 +469,12 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		}
 		temp += whiteSpace(0)+"end\n";
 		newTexts.put(ctx, temp);
-		
-		if(stack.size() == stackOfStack.peek().block){
+
+		if(stackOfStack.size() >0 && (stack.size() == stackOfStack.peek().block)){
 			stackOfStack.pop();
+		}
+		if(stackOfQueue.size() >0 && (stack.size() == stackOfQueue.peek().block)){
+			stackOfQueue.pop();
 		}
 		symOffset[stack.size()] = 1;
 		stack.pop();
@@ -382,7 +497,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		int offset = symOffset[base];
 		int number = 1;
 		String type = (ctx.getChild(1).getText().equals("["))?ctx.getChild(3).getText():ctx.getChild(1).getText();
-		
+
 		t.v.put(name, new Variable(name,base,offset,number,true,type));
 		temp += whiteSpace(0)+"sym "+base+" "+offset+" "+number+"\n";
 		symOffset[base] = symOffset[base]+number;
@@ -414,12 +529,15 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		}
 		newTexts.put(ctx,temp);
 		if(!(ctx.parent instanceof MiniGoParser.Fun_declContext)){
-			if(stack.size() == stackOfStack.peek().block){
+			if(stackOfStack.size() >0 && (stack.size() == stackOfStack.peek().block)){
 				stackOfStack.pop();
+			}
+			if(stackOfQueue.size() >0 && (stack.size() == stackOfQueue.peek().block)){
+				stackOfQueue.pop();
 			}
 			symOffset[stack.size()] = 1;
 			stack.pop();
-			
+
 		}
 	}
 
@@ -470,7 +588,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		}
 		newTexts.put(ctx, temp);
 	}
-	
+
 	@Override public void enterFor_stmt( MiniGoParser.For_stmtContext ctx) { 
 		loopStack.add("next"+next);
 		next++;
@@ -498,6 +616,10 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		if(ctx.getChildCount() == 1){
 			if(ctx.stack_expr() != null){
 				this.exprType.put(ctx, this.exprType.get(ctx.stack_expr()));
+				temp += newTexts.get(ctx.getChild(0));
+			}
+			else if(ctx.queue_expr() != null){
+				this.exprType.put(ctx, this.exprType.get(ctx.queue_expr()));
 				temp += newTexts.get(ctx.getChild(0));
 			}
 			else if(ctx.IDENT() != null){
@@ -758,31 +880,31 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		String temp = "";
 		String method = ctx.getChild(2).getText();
 		String name = ctx.getChild(0).getText();
-		
+
 		DataStack s = searchStack(name, ctx);
 		Variable va = searchVariable(name, ctx);
-		
+
 		/*
 		 * Methods implementation
 		 */
-		if(method.equals("pops")){
+		if(method.equals("pop")){
 			int size = s.size();
-			
+
 			temp += whiteSpace(0) + "ldc " + (size-1) + "\n";
 			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
 			temp += whiteSpace(0) + "add\n" + whiteSpace(0)+"ldi\n";
-			
+
 			s.pop();
 			this.exprType.put(ctx, s.type);
 		}
 		else if(method.equals("pushs")){
 			int size = s.size();
-			
+
 			if(s.size() == s.maxSize){
 				s.maxSize = s.size()+10;
 				va.setNumber(va.number+10);
 			}
-			
+
 			temp += whiteSpace(0) + "ldc " + size + "\n";
 			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
 			temp += whiteSpace(0) + "add\n";
@@ -793,34 +915,119 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		}
 		else if(method.equals("peeks")){
 			int size = s.size();
-			
+
 			temp += whiteSpace(0) + "ldc " + (size-1) + "\n";
 			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
 			temp += whiteSpace(0) + "add\n" + whiteSpace(0)+"ldi\n";
-			
+
 			this.exprType.put(ctx, s.type);
 		}
 		else if(method.equals("sizes")){
 			int size = s.size();
-			
+
 			temp += whiteSpace(0) + "ldc " + size + "\n";			
 			this.exprType.put(ctx, 0);
 		}
-		else if(method.equals("isEmptys")){
+		else if(method.equals("emptys")){
 			int size = s.size();
-			
+
 			if(size > 0){
 				temp += whiteSpace(0) + "ldc " + 1 + "\n";	
 			} else {
 				temp += whiteSpace(0) + "ldc " + 0 + "\n";	
 			}
-			
+
 			this.exprType.put(ctx, 1);
 		}
 		newTexts.put(ctx, temp);
 	}
-	
-	
+
+	@Override public void enterQueue_expr(MiniGoParser.Queue_exprContext ctx) { }
+	@Override public void exitQueue_expr(MiniGoParser.Queue_exprContext ctx) {
+		String temp = "";
+		String method = ctx.getChild(2).getText();
+		String name = ctx.getChild(0).getText();
+
+		DataQueue q = searchQueue(name, ctx);
+		Variable va = searchVariable(name, ctx);
+
+		/*
+		 * Methods implementation
+		 */
+		if(method.equals("poll")){
+			int size = q.size();
+			int iter = q.iter;
+			
+			if(iter < 0){
+				System.out.println("[Error polld] : Queue에 push된 원소가 없습니다.");
+				System.exit(1);
+			}
+			
+			temp += whiteSpace(0) + "ldc " + (iter) + "\n";
+			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
+			temp += whiteSpace(0) + "add\n" + whiteSpace(0)+"ldi\n";
+
+			q.pop();
+			q.iter++;
+			this.exprType.put(ctx, q.type);
+		}
+		else if(method.equals("pushd")){
+			int size = q.size();
+
+			if(q.size() == q.maxSize){
+				q.maxSize = q.size()+10;
+				va.setNumber(va.number+10);
+			}
+
+			if(q.iter == -1){
+				q.iter = 0;
+			}
+			temp += whiteSpace(0) + "ldc " + size + "\n";
+			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
+			temp += whiteSpace(0) + "add\n";
+			temp += newTexts.get(ctx.getChild(4));
+			temp += whiteSpace(0)+"sti\n";
+			q.push(1);
+			this.exprType.put(ctx, 10);
+		}
+		else if(method.equals("peekd")){
+			int size = q.size();
+			int iter = q.iter;
+			
+			if(iter < 0){
+				System.out.println("[Error peekd] : Queue에 push된 원소가 없습니다.");
+				System.exit(1);
+			}
+			
+			temp += whiteSpace(0) + "ldc " + (iter) + "\n";
+			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
+			temp += whiteSpace(0) + "add\n" + whiteSpace(0)+"ldi\n";
+
+			this.exprType.put(ctx, q.type);
+		}
+		else if(method.equals("sized")){
+			int size = q.size();
+			int iter = q.iter;
+			
+			temp += whiteSpace(0) + "ldc " + (size-iter) + "\n";			
+			this.exprType.put(ctx, 0);
+		}
+		else if(method.equals("emptyd")){
+			int size = q.size();
+			int iter = q.iter;
+			
+			if((size - iter) > 0){
+				temp += whiteSpace(0) + "ldc " + 1 + "\n";	
+			} else {
+				temp += whiteSpace(0) + "ldc " + 0 + "\n";	
+			}
+
+			this.exprType.put(ctx, 1);
+		}
+		newTexts.put(ctx, temp);
+	}
+
+
 	@Override public void enterEveryRule( ParserRuleContext ctx) { }
 
 	@Override public void exitEveryRule( ParserRuleContext ctx) { }
@@ -852,9 +1059,9 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			t = t.parent;
 		}
 		if(var == null){
-				this.printCodeLine(ctx);
-				System.out.println("선언하지 않은 변수를 사용했습니다.");
-				System.exit(1);
+			this.printCodeLine(ctx);
+			System.out.println("선언하지 않은 변수를 사용했습니다.");
+			System.exit(1);
 
 		}
 		return var;
@@ -899,11 +1106,11 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			System.out.print(ctx.getChild(i).getText()+" ");
 		}
 	}
-	
+
 	public DataStack searchStack(String name, MiniGoParser.Stack_exprContext ctx){
 		DataStack s = stackOfStack.peek();
 		DataStack result = null;
-		
+
 		while(s != null){
 			if(s.name.equals(name)){
 				result = s;
@@ -912,9 +1119,29 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			s = s.parent;
 		}
 		if(result == null){
-				this.printCodeLine(ctx);
-				System.out.println("선언하지 않은 변수를 사용했습니다.");
-				System.exit(1);
+			this.printCodeLine(ctx);
+			System.out.println("선언하지 않은 변수를 사용했습니다.");
+			System.exit(1);
+
+		}
+		return result;
+	}
+	
+	public DataQueue searchQueue(String name, MiniGoParser.Queue_exprContext ctx){
+		DataQueue q = stackOfQueue.peek();
+		DataQueue result = null;
+
+		while(q != null){
+			if(q.name.equals(name)){
+				result = q;
+				break;
+			}
+			q = q.parent;
+		}
+		if(result == null){
+			this.printCodeLine(ctx);
+			System.out.println("선언하지 않은 변수를 사용했습니다.");
+			System.exit(1);
 
 		}
 		return result;

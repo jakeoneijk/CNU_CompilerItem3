@@ -28,6 +28,16 @@ public interface MiniGoListener extends ParseTreeListener {
 	 */
 	void exitFun_decl(@NotNull MiniGoParser.Fun_declContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link MiniGoParser#queue_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterQueue_expr(@NotNull MiniGoParser.Queue_exprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MiniGoParser#queue_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitQueue_expr(@NotNull MiniGoParser.Queue_exprContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link MiniGoParser#if_stmt}.
 	 * @param ctx the parse tree
 	 */
