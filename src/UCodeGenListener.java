@@ -46,6 +46,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		int number = 0;
 		int type = 10; // 0: int , 1: boolean , 10: unknown
 		boolean isParam = false;
+		
 		public int type(){
 			return this.type;
 		}
@@ -80,7 +81,51 @@ public class UCodeGenListener extends MiniGoBaseListener {
 				this.type = 0;
 			}
 		}
+		
+		String uCodeDeclaration="";
+		ParserRuleContext ctxOfDecl;
 
+		public void setuCodeDeclaration(ParserRuleContext ctx , String uCodeDeclaration) {
+			this.ctxOfDecl = ctx;
+			this.uCodeDeclaration = uCodeDeclaration;
+		}
+		
+		public void setNumber(int number){
+			int interval = number-this.number;
+			this.number = number;
+
+			String[] ucodeName = this.uCodeDeclaration.split(" ");
+			String newName = ucodeName[0]+" "+ucodeName[1]+" "+ucodeName[2]+" "+number;
+
+			String temp = newTexts.get(this.ctxOfDecl).replaceAll(this.uCodeDeclaration,newName);
+			newTexts.put(ctxOfDecl,temp);
+
+			this.uCodeDeclaration = newName;
+
+			boolean nextofCurrent = false;
+
+			MiniGoParser.Compound_stmtContext parentOfCtx = (MiniGoParser.Compound_stmtContext)ctxOfDecl.getParent();
+			for(int i = 0; i < parentOfCtx.local_decl().size();i++){
+				if(nextofCurrent){
+					String temp2 = newTexts.get(parentOfCtx.local_decl(i)); // local Decl의 String
+					temp2 = temp2.replaceAll("           ","");
+					String[] ucodeName2 = temp2.split(" ");
+					ucodeName2[2] = (Integer.parseInt(ucodeName2[2])+interval)+"";
+					String newText = whiteSpace(0)+ ucodeName2[0]+" "+ucodeName2[1]+" "+ucodeName2[2]+" "+ucodeName2[3];
+					newTexts.put(parentOfCtx.local_decl(i),newText);
+
+					//변수 테이블의 변수 정보 도 수정
+					Variable va = searchVariable(parentOfCtx.local_decl(i).IDENT().getText(),parentOfCtx.local_decl(i));
+					va.offset = Integer.parseInt(ucodeName2[2]);
+
+
+				}
+
+				if(parentOfCtx.local_decl(i).equals(ctxOfDecl)){
+					nextofCurrent = true;
+				}
+			}
+		}
 	}
 	
 	private class DataStack {
@@ -89,15 +134,13 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		String name = "";
 		int type = 10;
 		int block = 0;
+		int maxSize = 0;
 		
 		public DataStack(String name, int type, int block){
 			this.name = name;
 			this.type = type;
 			this.block = block;
-		}
-		
-		public void addParent(DataStack d){
-			parent = d;
+			maxSize = 10;
 		}
 		
 		public int size(){
@@ -207,7 +250,10 @@ public class UCodeGenListener extends MiniGoBaseListener {
 				
 				stackOfStack.add(ds);
 				
-				t.v.put(name, new Variable(name,base,offset,number,ctx.getChild(3).getText()));
+				Variable newV = new Variable(name,base,offset,number,ctx.getChild(3).getText());
+				newV.setuCodeDeclaration(ctx,"sym "+base+" "+offset+" "+number);
+				t.v.put(name, newV);
+				
 				temp += whiteSpace(0) + "sym " + base + " " + offset + " " + number + "\n";
 				symOffset[base] = symOffset[base]+number;
 			}
@@ -277,7 +323,9 @@ public class UCodeGenListener extends MiniGoBaseListener {
 				
 				stackOfStack.add(ds);
 				
-				t.v.put(name, new Variable(name,base,offset,number,ctx.getChild(3).getText()));
+				Variable newV = new Variable(name,base,offset,number,ctx.getChild(3).getText());
+				newV.setuCodeDeclaration(ctx,"sym "+base+" "+offset+" "+number);
+				t.v.put(name, newV);
 				temp += whiteSpace(0) + "sym " + base + " " + offset + " " + number + "\n";
 				symOffset[base] = symOffset[base]+number;
 			}
@@ -309,6 +357,10 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		}
 		temp += whiteSpace(0)+"end\n";
 		newTexts.put(ctx, temp);
+		
+		if(stack.size() == stackOfStack.peek().block){
+			stackOfStack.pop();
+		}
 		symOffset[stack.size()] = 1;
 		stack.pop();
 	}
@@ -362,8 +414,12 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		}
 		newTexts.put(ctx,temp);
 		if(!(ctx.parent instanceof MiniGoParser.Fun_declContext)){
+			if(stack.size() == stackOfStack.peek().block){
+				stackOfStack.pop();
+			}
 			symOffset[stack.size()] = 1;
 			stack.pop();
+			
 		}
 	}
 
@@ -709,7 +765,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		/*
 		 * Methods implementation
 		 */
-		if(method.equals("pop")){
+		if(method.equals("pops")){
 			int size = s.size();
 			
 			temp += whiteSpace(0) + "ldc " + (size-1) + "\n";
@@ -719,9 +775,14 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			s.pop();
 			this.exprType.put(ctx, s.type);
 		}
-		else if(method.equals("push")){
+		else if(method.equals("pushs")){
 			int size = s.size();
-		
+			
+			if(s.size() == s.maxSize){
+				s.maxSize = s.size()+10;
+				va.setNumber(va.number+10);
+			}
+			
 			temp += whiteSpace(0) + "ldc " + size + "\n";
 			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
 			temp += whiteSpace(0) + "add\n";
@@ -730,7 +791,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			s.push(1);
 			this.exprType.put(ctx, 10);
 		}
-		else if(method.equals("peek")){
+		else if(method.equals("peeks")){
 			int size = s.size();
 			
 			temp += whiteSpace(0) + "ldc " + (size-1) + "\n";
@@ -739,13 +800,13 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			
 			this.exprType.put(ctx, s.type);
 		}
-		else if(method.equals("size")){
+		else if(method.equals("sizes")){
 			int size = s.size();
 			
 			temp += whiteSpace(0) + "ldc " + size + "\n";			
 			this.exprType.put(ctx, 0);
 		}
-		else if(method.equals("isEmpty")){
+		else if(method.equals("isEmptys")){
 			int size = s.size();
 			
 			if(size > 0){

@@ -52,16 +52,16 @@ expr      :  '(' expr ')'
          |(LITERAL|IDENT);
 args      : expr (',' expr) * 
          | ;
-stack_expr	: IDENT '.' POP
-			|IDENT '.' PEEK
-			|IDENT '.' SIZE
-			|IDENT '.' ISEMPTY	
-			|IDENT '.' PUSH '(' expr ')';
-PUSH	: 'push';
-POP		: 'pop';
-PEEK 	: 'peek';
-SIZE	: 'size';
-ISEMPTY : 'isEmpty';
+stack_expr	: IDENT '.' POPS
+			|IDENT '.' PEEKS
+			|IDENT '.' SIZES
+			|IDENT '.' ISEMPTYS	
+			|IDENT '.' PUSHS '(' expr ')';
+PUSHS	: 'pushs';
+POPS		: 'pops';
+PEEKS 	: 'peeks';
+SIZES	: 'sizes';
+ISEMPTYS : 'isEmptys';
 STACK     : 'stack'	   ;
 VOID      : 'void'     ;
 VAR          : 'var'   ;

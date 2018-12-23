@@ -18,7 +18,7 @@ public class MiniGoParser extends Parser {
 	public static final int
 		T__18=1, T__17=2, T__16=3, T__15=4, T__14=5, T__13=6, T__12=7, T__11=8, 
 		T__10=9, T__9=10, T__8=11, T__7=12, T__6=13, T__5=14, T__4=15, T__3=16, 
-		T__2=17, T__1=18, T__0=19, PUSH=20, POP=21, PEEK=22, SIZE=23, ISEMPTY=24, 
+		T__2=17, T__1=18, T__0=19, PUSHS=20, POPS=21, PEEKS=22, SIZES=23, ISEMPTYS=24, 
 		STACK=25, VOID=26, VAR=27, FUNC=28, FMT=29, INT=30, BOOL=31, FOR=32, IF=33, 
 		ELSE=34, RETURN=35, OR=36, AND=37, LE=38, GE=39, EQ=40, NE=41, IDENT=42, 
 		LITERAL=43, DecimalConstant=44, OctalConstant=45, HexadecimalConstant=46, 
@@ -26,7 +26,7 @@ public class MiniGoParser extends Parser {
 	public static final String[] tokenNames = {
 		"<INVALID>", "'/'", "'{'", "'['", "'++'", "'--'", "'<'", "'}'", "'='", 
 		"']'", "'>'", "'!'", "'%'", "'('", "')'", "'*'", "'+'", "','", "'-'", 
-		"'.'", "'push'", "'pop'", "'peek'", "'size'", "'isEmpty'", "'stack'", 
+		"'.'", "'pushs'", "'pops'", "'peeks'", "'sizes'", "'isEmptys'", "'stack'", 
 		"'void'", "'var'", "'func'", "'fmt'", "'int'", "'bool'", "'for'", "'if'", 
 		"'else'", "'return'", "'or'", "'and'", "'<='", "'>='", "'=='", "'!='", 
 		"IDENT", "LITERAL", "DecimalConstant", "OctalConstant", "HexadecimalConstant", 
@@ -1380,14 +1380,14 @@ public class MiniGoParser extends Parser {
 	}
 
 	public static class Stack_exprContext extends ParserRuleContext {
-		public TerminalNode POP() { return getToken(MiniGoParser.POP, 0); }
-		public TerminalNode PUSH() { return getToken(MiniGoParser.PUSH, 0); }
+		public TerminalNode POPS() { return getToken(MiniGoParser.POPS, 0); }
+		public TerminalNode SIZES() { return getToken(MiniGoParser.SIZES, 0); }
 		public ExprContext expr() {
 			return getRuleContext(ExprContext.class,0);
 		}
-		public TerminalNode PEEK() { return getToken(MiniGoParser.PEEK, 0); }
-		public TerminalNode SIZE() { return getToken(MiniGoParser.SIZE, 0); }
-		public TerminalNode ISEMPTY() { return getToken(MiniGoParser.ISEMPTY, 0); }
+		public TerminalNode PEEKS() { return getToken(MiniGoParser.PEEKS, 0); }
+		public TerminalNode ISEMPTYS() { return getToken(MiniGoParser.ISEMPTYS, 0); }
+		public TerminalNode PUSHS() { return getToken(MiniGoParser.PUSHS, 0); }
 		public TerminalNode IDENT() { return getToken(MiniGoParser.IDENT, 0); }
 		public Stack_exprContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1414,7 +1414,7 @@ public class MiniGoParser extends Parser {
 				{
 				setState(280); match(IDENT);
 				setState(281); match(T__0);
-				setState(282); match(POP);
+				setState(282); match(POPS);
 				}
 				break;
 			case 2:
@@ -1422,7 +1422,7 @@ public class MiniGoParser extends Parser {
 				{
 				setState(283); match(IDENT);
 				setState(284); match(T__0);
-				setState(285); match(PEEK);
+				setState(285); match(PEEKS);
 				}
 				break;
 			case 3:
@@ -1430,7 +1430,7 @@ public class MiniGoParser extends Parser {
 				{
 				setState(286); match(IDENT);
 				setState(287); match(T__0);
-				setState(288); match(SIZE);
+				setState(288); match(SIZES);
 				}
 				break;
 			case 4:
@@ -1438,7 +1438,7 @@ public class MiniGoParser extends Parser {
 				{
 				setState(289); match(IDENT);
 				setState(290); match(T__0);
-				setState(291); match(ISEMPTY);
+				setState(291); match(ISEMPTYS);
 				}
 				break;
 			case 5:
@@ -1446,7 +1446,7 @@ public class MiniGoParser extends Parser {
 				{
 				setState(292); match(IDENT);
 				setState(293); match(T__0);
-				setState(294); match(PUSH);
+				setState(294); match(PUSHS);
 				setState(295); match(T__6);
 				setState(296); expr(0);
 				setState(297); match(T__5);
