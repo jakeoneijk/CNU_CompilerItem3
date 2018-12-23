@@ -22,16 +22,27 @@ stmt      : expr_stmt
          | assign_stmt
          | if_stmt
          | for_stmt
-         | return_stmt;
+         | while_stmt
+         | switch_stmt
+         | return_stmt
+         | three_stmt
+         | break_stmt
+         | continue_stmt;
 expr_stmt  : expr ;
 assign_stmt : VAR IDENT ',' IDENT type_spec '=' LITERAL ',' LITERAL
          | VAR IDENT type_spec '=' expr
          | IDENT type_spec '=' expr
          | IDENT '[' expr ']' '=' expr ;
-compound_stmt: '{' local_decl* stmt* '}';
+compound_stmt: '{' local_decl* stmt* case_stmt* '}';
 if_stmt       : IF expr compound_stmt
          | IF expr compound_stmt ELSE compound_stmt ;
-for_stmt    : FOR expr compound_stmt;
+three_stmt		: expr '?' (stmt) ':' stmt ;
+for_stmt    : FOR expr compound_stmt	;
+while_stmt : WHILE expr compound_stmt ;
+break_stmt	: BREAK ;
+continue_stmt	: CONTINUE ;
+switch_stmt    : SWITCH expr compound_stmt ;
+case_stmt: CASE LITERAL ':' stmt* ;
 return_stmt    : RETURN expr ',' expr
          | RETURN expr
          | RETURN ;
@@ -55,6 +66,7 @@ expr      :  '(' expr ')'
          |(LITERAL|IDENT);
 args      : expr (',' expr) * 
          | ;
+         
 stack_expr	: IDENT '.' POPS
 			|IDENT '.' PEEKS
 			|IDENT '.' SIZES
@@ -85,6 +97,9 @@ FMT          : 'fmt'      ;
 INT          : 'int'   ;
 BOOL         : 'bool'  ;
 FOR          : 'for'   ;
+WHILE		: 'while'  ;
+SWITCH       : 'switch'    ;
+CASE       : 'case'    ;
 IF       : 'if'    ;
 ELSE      : 'else'  ;
 RETURN    : 'return';
@@ -94,6 +109,8 @@ LE       : '<='    ;
 GE       : '>='    ;
 EQ       : '=='    ;
 NE       : '!='    ;
+BREAK		: 'break'	;
+CONTINUE	: 'continue'	;
 
 IDENT     : [a-zA-Z_] 
          ( [a-zA-Z_]

@@ -211,6 +211,8 @@ public class UCodeGenListener extends MiniGoBaseListener {
 	int[] symOffset = new int[100];
 	ParseTreeProperty<String> newTexts = new ParseTreeProperty<String>();
 	int next = 0;
+	// Jiseung code
+	int exitFor = -1, continueFor = -1;
 
 	@Override public void enterProgram( MiniGoParser.ProgramContext ctx) {
 		Arrays.fill(symOffset, 1);
@@ -591,7 +593,10 @@ public class UCodeGenListener extends MiniGoBaseListener {
 
 	@Override public void enterFor_stmt( MiniGoParser.For_stmtContext ctx) { 
 		loopStack.add("next"+next);
+		// Jiseung code
+		continueFor = next;
 		next++;
+		exitFor = next; 
 		loopStack.add("next"+next);
 		next++;
 	}
@@ -606,9 +611,150 @@ public class UCodeGenListener extends MiniGoBaseListener {
 		temp += newTexts.get(ctx.getChild(2));
 		temp += whiteSpace(0)+"ujp "+next2+"\n";
 		temp += next1+whiteSpace(next1.length())+"nop\n";
-
+		// Jiseung code
+		exitFor = -1;
+		continueFor = -1;
 		newTexts.put(ctx, temp);
 	}
+	
+	// Jiseung's code
+	
+	@Override public void enterWhile_stmt( MiniGoParser.While_stmtContext ctx) { 
+		loopStack.add("next"+next);
+		// Jiseung code
+		continueFor = next;
+		next++;
+		exitFor = next; 
+		loopStack.add("next"+next);
+		next++;
+	}
+	@Override public void exitWhile_stmt( MiniGoParser.While_stmtContext ctx) { 
+		String temp = "";
+		String next1 = loopStack.pop();
+		String next2 = loopStack.pop();
+
+		temp += next2+whiteSpace(next2.length())+"nop\n";
+		temp += newTexts.get(ctx.getChild(1));
+		temp += whiteSpace(0)+"fjp "+next1+"\n";
+		temp += newTexts.get(ctx.getChild(2));
+		temp += whiteSpace(0)+"ujp "+next2+"\n";
+		temp += next1+whiteSpace(next1.length())+"nop\n";
+		// Jiseung code
+		exitFor = -1;
+		continueFor = -1;
+		newTexts.put(ctx, temp);
+	}
+	
+	@Override public void enterContinue_stmt(MiniGoParser.Continue_stmtContext ctx) {
+		if(continueFor == -1) {
+			// Continue 잘못 됐다는 코드 출력
+			return;
+		}
+		String temp = "";
+		temp += whiteSpace(0) + "ujp next" + continueFor + "\n";
+		newTexts.put(ctx, temp);
+	}
+	
+	@Override public void enterBreak_stmt(MiniGoParser.Break_stmtContext ctx) {
+		if(exitFor == -1) {
+			// Break 잘못 됐다는 코드 출력
+			return;
+		}
+		String temp = "";
+		temp += whiteSpace(0) + "ujp next" + exitFor + "\n";
+		newTexts.put(ctx, temp);
+	}
+
+	@Override public void enterThree_stmt(MiniGoParser.Three_stmtContext ctx) {
+		loopStack.add("next"+next);
+		next++;
+		loopStack.add("next"+next);
+		next++;
+	}
+
+	@Override public void exitThree_stmt(MiniGoParser.Three_stmtContext ctx) {
+		String temp = "";
+		String next1 = loopStack.pop();
+		String next2 = loopStack.pop();
+
+		temp += newTexts.get(ctx.expr());
+		temp += whiteSpace(0)+"fjp "+next2+"\n";
+		temp += newTexts.get(ctx.stmt(0));
+		temp += whiteSpace(0)+"ujp "+next1+"\n";
+		temp += next2+whiteSpace(next2.length())+"nop\n";
+		temp += newTexts.get(ctx.stmt(1));
+		temp += next1+whiteSpace(next1.length())+"nop\n";
+		newTexts.put(ctx,temp);
+	}
+	
+	@Override public void enterSwitch_stmt(MiniGoParser.Switch_stmtContext ctx) {
+		for(int i = 0; i < ctx.compound_stmt().case_stmt().size(); i++) {
+			loopStack.add("next" + next);
+			next++;
+		}
+	}
+
+	@Override public void exitSwitch_stmt(MiniGoParser.Switch_stmtContext ctx) {
+		// 일단 expr의 변수명으로 값 가져오기
+		String temp = "";
+		// next Label 저장 용도
+		ArrayList<String> nextlist = new ArrayList<String>();
+		// Switch 시작 시 Label 용도
+		String oneLabel;
+		//		temp += next+whiteSpace(switchLabel.length())+"nop\n"; 
+
+		for(int i = 0; i < ctx.compound_stmt().case_stmt().size(); i++) {
+			nextlist.add("next" + (next - ctx.compound_stmt().case_stmt().size() + i) );
+		}
+		String lastLabel = "next" + next;
+		// 까지가
+		// switchLabel            nop
+		// ======================================
+		// 아래는
+		// case 1의 label          nop
+		// lod 'va'
+		// ldc 'case의 LITERAL'
+		// eq
+		// fjp 다음 label
+		// stmt* 문 => 걸린 경우이므로 자동 break
+		// ujp lastLabel
+
+		// case 2의 label          nop
+		// ...
+
+		for(int i = 0; i < nextlist.size(); i++) {
+			oneLabel = nextlist.get(i);
+			temp += oneLabel+whiteSpace(oneLabel.length())+"nop\n";
+			// lod 'va'
+			temp += newTexts.get(ctx.expr());
+			// ldc 'case의 LITERAL'
+			temp += whiteSpace(0) + "ldc " + ctx.compound_stmt().case_stmt(i).LITERAL() + "\n";
+			// eq
+			temp += whiteSpace(0) + "eq\n";
+			// fjp 다음 label (다음이 없을 경우는 추가 x)
+			if(i != nextlist.size() - 1) {
+				temp += whiteSpace(0) + "fjp " + nextlist.get(i + 1) + "\n";
+			}
+			temp += newTexts.get(ctx.compound_stmt().case_stmt(i));
+			if(i != nextlist.size() - 1) {
+				temp += whiteSpace(0) + "ujp " + lastLabel + "\n";
+			}
+		}
+		newTexts.put(ctx,temp);
+	}
+
+	@Override public void enterCase_stmt(MiniGoParser.Case_stmtContext ctx) {
+	}
+
+	@Override public void exitCase_stmt(MiniGoParser.Case_stmtContext ctx) {
+		String temp = "";
+		for(int i = 0; i < ctx.stmt().size(); i++) {
+			temp += newTexts.get(ctx.stmt(i));
+		}
+		newTexts.put(ctx,temp);
+	}
+
+	// Jiseung's code end
 
 	@Override public void enterExpr( MiniGoParser.ExprContext ctx) { }
 	@Override public void exitExpr( MiniGoParser.ExprContext ctx) {
