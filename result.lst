@@ -65,101 +65,107 @@
   62    ( 1          )                neg
   63    (31          )                retv
   64    (36          )                end
-  65    (35    4    2)     main       proc 4 2 2
+  65    (35    7    2)     main       proc 7 2 2
   66    (38    2    1)                sym 2 1 4
-  67    (20    0     )                ldc 0
-  68    (21    2    1)                lda 2 1
-  69    ( 6          )                add
-  70    (2011111     )                ldc 11111
-  71    (25          )                sti
-  72    (20    1     )                ldc 1
-  73    (21    2    1)                lda 2 1
-  74    ( 6          )                add
-  75    (2022222     )                ldc 22222
-  76    (25          )                sti
-  77    (20    2     )                ldc 2
-  78    (21    2    1)                lda 2 1
-  79    ( 6          )                add
-  80    (2033333     )                ldc 33333
-  81    (25          )                sti
-  82    (20    3     )                ldc 3
-  83    (21    2    1)                lda 2 1
-  84    ( 6          )                add
-  85    (2044444     )                ldc 44444
-  86    (25          )                sti
-  87    (23          )                ldp
-  88    (23          )                ldp
-  89    (2033333     )                ldc 33333
-  90    (20    5     )                ldc 5
-  91    (21    2    1)                lda 2 1
-  92    (29   32     )                call fAL54
-  93    (29   -2     )                call write
-  94    (23          )                ldp
-  95    (20    1     )                ldc 1
-  96    (20    4     )                ldc 4
-  97    (21    2    1)                lda 2 1
-  98    (29    1     )                call dAL54
-  99    (23          )                ldp
- 100    (20    0     )                ldc 0
- 101    (21    2    1)                lda 2 1
- 102    ( 6          )                add
- 103    (22          )                ldi
- 104    (29   -2     )                call write
- 105    (23          )                ldp
+  67    (38    2    5)                sym 2 5 1
+  68    (38    2    6)                sym 2 6 1
+  69    (38    2    7)                sym 2 7 1
+  70    (20    0     )                ldc 0
+  71    (24    2    3)                str 2 3
+  72    (19    2    3)                lod 2 3
+  73    ( 0          )                notop
+  74    (28   78     )                fjp next0
+  75    (23          )                ldp
+  76    (20123123123     )                ldc 123123123
+  77    (29   -2     )                call write
+  78    (34          )     next0      nop
+  79    (20    0     )                ldc 0
+  80    (21    2    1)                lda 2 1
+  81    ( 6          )                add
+  82    (2011111     )                ldc 11111
+  83    (25          )                sti
+  84    (20    1     )                ldc 1
+  85    (21    2    1)                lda 2 1
+  86    ( 6          )                add
+  87    (2022222     )                ldc 22222
+  88    (25          )                sti
+  89    (20    2     )                ldc 2
+  90    (21    2    1)                lda 2 1
+  91    ( 6          )                add
+  92    (2033333     )                ldc 33333
+  93    (25          )                sti
+  94    (20    3     )                ldc 3
+  95    (21    2    1)                lda 2 1
+  96    ( 6          )                add
+  97    (2044444     )                ldc 44444
+  98    (25          )                sti
+  99    (20    1     )                ldc 1
+ 100    (21    2    1)                lda 2 1
+ 101    ( 6          )                add
+ 102    (20    1     )                ldc 1
+ 103    (21    2    1)                lda 2 1
+ 104    ( 6          )                add
+ 105    (22          )                ldi
  106    (20    1     )                ldc 1
- 107    (21    2    1)                lda 2 1
- 108    ( 6          )                add
- 109    (22          )                ldi
- 110    (29   -2     )                call write
- 111    (23          )                ldp
- 112    (20    2     )                ldc 2
- 113    (21    2    1)                lda 2 1
- 114    ( 6          )                add
- 115    (22          )                ldi
- 116    (29   -2     )                call write
- 117    (23          )                ldp
- 118    (20    3     )                ldc 3
- 119    (29   -2     )                call write
- 120    (23          )                ldp
- 121    (20    2     )                ldc 2
- 122    (20    3     )                ldc 3
- 123    (21    2    1)                lda 2 1
- 124    (29    1     )                call dAL54
- 125    (23          )                ldp
- 126    (20    0     )                ldc 0
- 127    (21    2    1)                lda 2 1
- 128    ( 6          )                add
- 129    (22          )                ldi
- 130    (29   -2     )                call write
+ 107    ( 6          )                add
+ 108    (25          )                sti
+ 109    (23          )                ldp
+ 110    (2033333     )                ldc 33333
+ 111    (20    5     )                ldc 5
+ 112    (21    2    1)                lda 2 1
+ 113    (29   32     )                call fAL54
+ 114    (24    2    6)                str 2 6
+ 115    (23          )                ldp
+ 116    (23          )                ldp
+ 117    (2033333     )                ldc 33333
+ 118    (20    4     )                ldc 4
+ 119    (21    2    1)                lda 2 1
+ 120    (29   32     )                call fAL54
+ 121    (20    4     )                ldc 4
+ 122    (21    2    1)                lda 2 1
+ 123    (29    1     )                call dAL54
+ 124    (20    0     )                ldc 0
+ 125    (24    2    5)                str 2 5
+ 126    (34          )     next1      nop
+ 127    (19    2    5)                lod 2 5
+ 128    (20    3     )                ldc 3
+ 129    (14          )                lt
+ 130    (28  141     )                fjp next2
  131    (23          )                ldp
- 132    (20    1     )                ldc 1
+ 132    (19    2    5)                lod 2 5
  133    (21    2    1)                lda 2 1
  134    ( 6          )                add
  135    (22          )                ldi
  136    (29   -2     )                call write
- 137    (23          )                ldp
- 138    (20    2     )                ldc 2
- 139    (29   -2     )                call write
- 140    (23          )                ldp
- 141    (23          )                ldp
- 142    (2011111     )                ldc 11111
- 143    (20    3     )                ldc 3
- 144    (21    2    1)                lda 2 1
- 145    (29   32     )                call fAL54
- 146    (29   -2     )                call write
- 147    (30          )                ret
- 148    (36          )                end
- 149    (37    0     )                bgn 0
+ 137    (19    2    5)                lod 2 5
+ 138    ( 2          )                inc
+ 139    (24    2    5)                str 2 5
+ 140    (26  126     )                ujp next1
+ 141    (34          )     next2      nop
+ 142    (23          )                ldp
+ 143    (2044444     )                ldc 44444
+ 144    (20    4     )                ldc 4
+ 145    (21    2    1)                lda 2 1
+ 146    (29   32     )                call fAL54
+ 147    (20    1     )                ldc 1
+ 148    ( 6          )                add
+ 149    (24    2    6)                str 2 6
  150    (23          )                ldp
- 151    (29   65     )                call main
- 152    (36          )                end
+ 151    (19    2    6)                lod 2 6
+ 152    (29   -2     )                call write
+ 153    (30          )                ret
+ 154    (36          )                end
+ 155    (37    0     )                bgn 0
+ 156    (23          )                ldp
+ 157    (29   65     )                call main
+ 158    (36          )                end
 
 
 
    ****    Result    ****
 
 
- 2 11111 33333 44444 3 11111 33333 2 0
+ 123123123 11111 22223 33333 0
 
    **********************
 
@@ -172,24 +178,26 @@
     ****  Static Instruction Counts  ****
 
 
-neg    =  1       inc    =  2       add    =  13      sub    =  2       
-lt     =  2       eq     =  1       lod    =  15      ldc    =  28      
-lda    =  13      ldi    =  7       ldp    =  14      str    =  4       
-sti    =  5       ujp    =  2       fjp    =  3       call   =  14      
-ret    =  2       retv   =  2       nop    =  5       proc   =  3       
-end    =  4       bgn    =  1       sym    =  9       
+notop  =  1       neg    =  1       inc    =  3       add    =  13      
+sub    =  2       lt     =  3       eq     =  1       lod    =  20      
+ldc    =  28      lda    =  11      ldi    =  4       ldp    =  8       
+str    =  9       sti    =  6       ujp    =  3       fjp    =  5       
+call   =  8       ret    =  2       retv   =  2       nop    =  8       
+proc   =  3       end    =  4       bgn    =  1       sym    =  12      
+
 
 
   ****  Dynamic instruction counts  ****
 
 
-inc    =  4         add    =  19        sub    =  8         lt     =  8         
-eq     =  4         lod    =  44        ldc    =  35        lda    =  13        
-ldi    =  11        ldp    =  14        str    =  8         sti    =  6         
-ujp    =  4         fjp    =  12        call   =  14        ret    =  3         
-retv   =  2         nop    =  12        proc   =  5         end    =  1         
-bgn    =  1         sym    =  17        
+notop  =  1         neg    =  1         inc    =  10        add    =  20        
+sub    =  11        lt     =  15        eq     =  9         lod    =  71        
+ldc    =  41        lda    =  13        ldi    =  13        ldp    =  10        
+str    =  18        sti    =  5         ujp    =  10        fjp    =  25        
+call   =  10        ret    =  2         retv   =  3         nop    =  26        
+proc   =  5         end    =  1         bgn    =  1         sym    =  20        
 
- Executable instruction count  =   214
 
- Total execution cycle         =   2204
+ Executable instruction count  =   293
+
+ Total execution cycle         =   2755

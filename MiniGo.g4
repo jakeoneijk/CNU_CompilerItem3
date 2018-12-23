@@ -60,7 +60,7 @@ arrayList_expr: IDENT '.add''('expr')' //원소 추가
               | IDENT '.size''('')'
               | IDENT '.get''('expr')' // 찾을 Index
               | IDENT '.get''('expr')' '=' expr
-              | IDENT '.delete''('expr')'; // 삭제할 Index expr에는 숫자만 허용
+              | IDENT '.delete''('expr')'; // 삭제할 Index
          
 VOID      : 'void'     ;
 VAR          : 'var'   ;
