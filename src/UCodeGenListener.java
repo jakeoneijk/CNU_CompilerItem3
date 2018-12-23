@@ -440,7 +440,10 @@ public class UCodeGenListener extends MiniGoBaseListener {
 	@Override public void exitExpr( MiniGoParser.ExprContext ctx) {
 		String temp = "";
 		if(ctx.getChildCount() == 1){
-			if(ctx.IDENT() != null){
+			if(ctx.stack_expr() != null){
+				temp += newTexts.get(ctx.getChild(0));
+			}
+			else if(ctx.IDENT() != null){
 				if(ctx.IDENT().getText().equals("true")||ctx.IDENT().getText().equals("false")){
 					temp += whiteSpace(0) + "ldc ";
 					temp += (ctx.IDENT().getText().equals("true"))?1:0;
@@ -696,21 +699,21 @@ public class UCodeGenListener extends MiniGoBaseListener {
 	@Override public void enterStack_expr(MiniGoParser.Stack_exprContext ctx) { }
 	@Override public void exitStack_expr(MiniGoParser.Stack_exprContext ctx) {
 		String temp = "";
-		String method = ctx.getChild(1).getText();
+		String method = ctx.getChild(2).getText();
 		String name = ctx.getChild(0).getText();
-		int returnType = exprType.get(ctx);
+		//int returnType = exprType.get(ctx);
 		
 		DataStack s = searchStack(name, ctx);
 		Variable va = searchVariable(name, ctx);
 		/*
 		 * Type check
 		 */
-		singleOperationTypeCheck(ctx,s.type,returnType);
+		//singleOperationTypeCheck(ctx,s.type,returnType);
 		
 		/*
 		 * Methods implementation
 		 */
-		if(method.equals(".pop")){
+		if(method.equals("pop")){
 			int size = s.size();
 			
 			temp += whiteSpace(0) + "ldc " + (size-1) + "\n";
@@ -718,34 +721,35 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			temp += whiteSpace(0) + "add\n" + whiteSpace(0)+"ldi\n";
 			
 			s.pop();
-			this.exprType.put(ctx, returnType);
+			//this.exprType.put(ctx, returnType);
 		}
-		else if(method.equals(".push")){
+		else if(method.equals("push")){
 			int size = s.size();
-			
-			temp += newTexts.get(ctx.getChild(3));
+		
 			temp += whiteSpace(0) + "ldc " + size + "\n";
 			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
-			temp += whiteSpace(0) + "add\n" + whiteSpace(0)+"sti\n";
-			
+			temp += whiteSpace(0) + "add\n";
+			temp += newTexts.get(ctx.getChild(4));
+			temp += whiteSpace(0)+"sti\n";
+			s.push(1);
 			this.exprType.put(ctx, 10);
 		}
-		else if(method.equals(".peek")){
+		else if(method.equals("peek")){
 			int size = s.size();
 			
 			temp += whiteSpace(0) + "ldc " + (size-1) + "\n";
 			temp += whiteSpace(0) + "lda " + va.base + " " + va.offset + "\n";
 			temp += whiteSpace(0) + "add\n" + whiteSpace(0)+"ldi\n";
 			
-			this.exprType.put(ctx, returnType);
+			//this.exprType.put(ctx, returnType);
 		}
-		else if(method.equals(".size")){
+		else if(method.equals("size")){
 			int size = s.size();
 			
 			temp += whiteSpace(0) + "ldc " + size + "\n";			
 			this.exprType.put(ctx, 0);
 		}
-		else if(method.equals(".empty")){
+		else if(method.equals("isEmpty")){
 			int size = s.size();
 			
 			if(size > 0){
@@ -756,6 +760,7 @@ public class UCodeGenListener extends MiniGoBaseListener {
 			
 			this.exprType.put(ctx, 1);
 		}
+		newTexts.put(ctx, temp);
 	}
 	
 	

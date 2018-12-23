@@ -38,9 +38,9 @@ local_decl : VAR IDENT type_spec
              | VAR IDENT '[' LITERAL ']' type_spec
              | VAR IDENT '<' type_spec '>' STACK;
 expr      :  '(' expr ')'
+		 | stack_expr
          | IDENT '[' expr ']' 
          | IDENT '(' args ')' 
-         | stack_expr
          | FMT '.' IDENT '(' args ')' 
          | op=('-'|'+'|'--'|'++'|'!') expr 
          | left=expr op=('*'|'/'|'%') right=expr 
@@ -52,8 +52,16 @@ expr      :  '(' expr ')'
          |(LITERAL|IDENT);
 args      : expr (',' expr) * 
          | ;
-stack_expr	:	IDENT method = ('.pop'|'.push'|'.peek'|'.size'|'.empty') '(' expr ')';
- 
+stack_expr	: IDENT '.' POP
+			|IDENT '.' PEEK
+			|IDENT '.' SIZE
+			|IDENT '.' ISEMPTY	
+			|IDENT '.' PUSH '(' expr ')';
+PUSH	: 'push';
+POP		: 'pop';
+PEEK 	: 'peek';
+SIZE	: 'size';
+ISEMPTY : 'isEmpty';
 STACK     : 'stack'	   ;
 VOID      : 'void'     ;
 VAR          : 'var'   ;
